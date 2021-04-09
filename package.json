@@ -1,0 +1,27 @@
+{
+  "name": "tr3x-license",
+  "version": "0.0.0",
+  "description": "funcs 2 assemble tr3x licenses",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./test.js",
+    "fmt": "npx standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuggetdigital/tr3x-license.git"
+  },
+  "keywords": [
+    "tr3x",
+    "license"
+  ],
+  "author": "Noah Anabiik Schwarz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nuggetdigital/tr3x-license/issues"
+  },
+  "homepage": "https://github.com/nuggetdigital/tr3x-license#readme",
+  "devDependencies": {
+    "tape": "5.2.1"
+  }
+}
