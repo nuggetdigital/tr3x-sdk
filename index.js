@@ -40,7 +40,7 @@ const metadata = {
       license: `
 The tr3x Public Performance Exclusive License (TR3X PPEL)
 
-Permission is hereby granted, at a charge of $${price}STYC (TR3X), 
+Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 to the first person purchasing a token of this digital license 
 asset to exclusively perform the associated track named "${title}", 
 © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash 
@@ -54,7 +54,7 @@ Claims of this particular license must be verified against their respective
 purchases on the ${network} network.
 `.trim(),
       // minimum STYC price
-      price: price.toString()
+      price: price.toString() + "STYC"
     }
   },
   lease({
@@ -107,7 +107,7 @@ purchases on the ${network} network.
       license: `
 The tr3x Public Performance Lease License (TR3X PPLL)
 
-Permission is hereby granted, at a charge of $${price}STYC (TR3X), 
+Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 to any person purchasing a token of this digital license asset to perform 
 the associated track named "${title}", © ${copyrightYear} ${artist}, 
 identified by its BLAKE3 256-bit hash digest "${blake3256}", in public 
@@ -136,3 +136,5 @@ purchases on the ${network} network.
     }
   }
 }
+
+module.exports = { metadata }
