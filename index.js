@@ -3,55 +3,46 @@ const VALID_MIME_TYPES = new Set(["audio/wav","audio/mp3"])
 const VALID_NETWORKS = new Set(["Moonbeam", "Moonriver"])
 
 module.exports = {
-  validate: {
     exclusive({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32,
     network }) {
-      var errors = []
-      if (!VALID_NETWORKS.has(network)) errors.push(TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`))
-      if (typeof artist !== "string" || !artist.length) errors.push(TypeError("artist must be a string"))
-      if (typeof title !== "string" || !title.length) errors.push(TypeError("title must be a string"))
-      if (typeof price !== "bigint") errors.push(TypeError("price must be a bigint"))
-      if (!/^[a-f0-9]{64}$/.test(blake3256)) errors.push(TypeError("blake3256 must be a hex string"))
-      if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) errors.push(TypeError("copyrightYear must be intlike"))
-      if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) errors.push(TypeError("invalid cidv1base32"))
-      if (!VALID_MIME_TYPES.has(mime)) errors.push(TypeError("invalid mime"))
-      return errors
+      if (!VALID_NETWORKS.has(network)) throw TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`)
+      if (typeof artist !== "string" || !artist.length) throw TypeError("artist must be a string")
+      if (typeof title !== "string" || !title.length) throw TypeError("title must be a string")
+      if (typeof price !== "bigint" || !(price >0n)) throw TypeError("price must be a bigint gt 0")
+      if (!/^[a-f0-9]{64}$/.test(blake3256)) throw TypeError("blake3256 must be a hex string")
+      if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) throw TypeError("copyrightYear must be intlike")
+      if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) throw TypeError("invalid cidv1base32")
+      if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
+
     },
     lease({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32,
       network, term, cap, paybackRatioEURTR3X
     }) {
-      var errors = []
-      if (!VALID_NETWORKS.has(network)) errors.push(TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`))
-      if (typeof artist !== "string" || !artist.length) errors.push(TypeError("artist must be a string"))
-      if (typeof title !== "string" || !title.length) errors.push(TypeError("title must be a string"))
-      if (typeof price !== "bigint") errors.push(TypeError("price must be a bigint"))
-      if (!/^[a-f0-9]{64}$/.test(blake3256)) errors.push(TypeError("blake3256 must be a hex string"))
-      if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) errors.push(TypeError("copyrightYear must be intlike"))
-      if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) errors.push(TypeError("invalid cidv1base32"))
-      if (!VALID_MIME_TYPES.has(mime)) errors.push(TypeError("invalid mime"))
-      if (typeof term !== "bigint") errors.push(TypeError("term must be a bigint"))
-      if (typeof cap !== "bigint") errors.push(TypeError("cap must be a bigint"))
+      if (!VALID_NETWORKS.has(network)) throw TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`)
+      if (typeof artist !== "string" || !artist.length) throw TypeError("artist must be a string")
+      if (typeof title !== "string" || !title.length) throw TypeError("title must be a string")
+      if (typeof price !== "bigint" || !(price >0n)) throw TypeError("price must be a bigint gt 0")
+      if (!/^[a-f0-9]{64}$/.test(blake3256)) throw TypeError("blake3256 must be a hex string")
+      if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) throw TypeError("copyrightYear must be intlike")
+      if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) throw TypeError("invalid cidv1base32")
+      if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
+      if (typeof term !== "bigint") throw TypeError("term must be a bigint")
+      if (typeof cap !== "bigint") throw TypeError("cap must be a bigint")
       // NOTE: ratio repr as number in range 0..1 ? (only in .js - not .sol)
-      if (typeof paybackRatioEURTR3X !== number ||!(paybackRatioEURTR3X  >0) ||paybackRatioEURTR3X >1) errors.push(TypeError("paybackRatioEURTR3X must be a float gt 0 and lte 1"))
-      return errors
+      if (typeof paybackRatioEURTR3X !== number ||!(paybackRatioEURTR3X  >0) ||paybackRatioEURTR3X >1) throw TypeError("paybackRatioEURTR3X must be a float gt 0 and lte 1")
+      return {
+          cid: cidv1base32, // IPFS content identifier of the track
+  blake3256, // BLAKE3 256-bit hash digest of the track
+  title,
+  mime,
+  artist,
+  license: `TODO`, // TODO TR3X PPEL/PPLL license or derivative
+  price: price.toString(), // minimum STYC
+  paybackRatioEURTR3X, // payback exchange rate for lease violations
+  term: term.toString(), // ~lease validity period - expiry date expressed as finalized block number
+  cap: cap.toString() // maximum EUR profits from public performances
+      }
     }
-  },
-  license: {
-    exclusive() {
-
-    }, 
-       lease() {
-      
-    }
-  },
-  metadata: {
-    exclusive() {
-
-    },
-    lease() {
-
-    }
-  }
 }
 
   // cid: "<track cidv1base32>", // IPFS content identifier of the track
