@@ -1,7 +1,7 @@
 {
-  "name": "tr3x-license",
+  "name": "tr3x-util",
   "version": "0.0.0",
-  "description": "funcs 2 assemble tr3x licenses",
+  "description": "funcs 2 assemble tr3x metadata",
   "main": "index.js",
   "scripts": {
     "test": "node ./test.js",
