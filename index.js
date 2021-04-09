@@ -1,7 +1,7 @@
 const VALID_MIME_TYPES = new Set(["audio/wav", "audio/mp3"])
 const VALID_NETWORKS = new Set(["Moonbeam", "Moonriver"])
 
-module.exports = {
+const metadata = {
   exclusive({
     artist,
     title,
@@ -40,7 +40,7 @@ module.exports = {
       license: `
 The tr3x Public Performance Exclusive License (TR3X PPEL)
 
-Permission is hereby granted, at a charge of $${price} STYC (TR3X), 
+Permission is hereby granted, at a charge of $${price}STYC (TR3X), 
 to the first person purchasing a token of this digital license 
 asset to exclusively perform the associated track named "${title}", 
 © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash 
@@ -107,7 +107,7 @@ purchases on the ${network} network.
       license: `
 The tr3x Public Performance Lease License (TR3X PPLL)
 
-Permission is hereby granted, at a charge of $${price} STYC (TR3X), 
+Permission is hereby granted, at a charge of $${price}STYC (TR3X), 
 to any person purchasing a token of this digital license asset to perform 
 the associated track named "${title}", © ${copyrightYear} ${artist}, 
 identified by its BLAKE3 256-bit hash digest "${blake3256}", in public 
@@ -126,13 +126,13 @@ Claims of this particular license must be verified against their respective
 purchases on the ${network} network.
 `.trim(),
       // minimum STYC price
-      price: price.toString(),
+      price: price.toString() + "STYC",
       // payback exchange rate for lease violations
       paybackRatioEURTR3X,
       // ~lease validity period - expiry date expressed as finalized block number
       term: term.toString(),
       // maximum permitted EUR profits from public performances
-      cap: cap.toString()
+      cap: cap.toString() + "€"
     }
   }
 }
