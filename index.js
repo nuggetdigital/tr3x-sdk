@@ -13,18 +13,28 @@ module.exports = {
       if (!VALID_MIME_TYPES.has(mime)) errors.push(TypeError("invalid mime"))
       return errors
     },
-    lease() {
-
+    lease({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32,
+      term, cap, paybackRatio
+    }) {
+      var errors = []
+      if (typeof artist !== "string" || !artist.length) errors.push(TypeError("artist must be a string"))
+      if (typeof title !== "string" || !title.length) errors.push(TypeError("title must be a string"))
+      if (typeof price !== "bigint") errors.push(TypeError("price must be a bigint"))
+      if (!/^[a-f0-9]{64}$/.test(blake3256)) errors.push(TypeError("blake3256 must be a hex string"))
+      if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) errors.push(TypeError("copyrightYear must be intlike"))
+      if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) errors.push(TypeError("invalid cidv1base32"))
+      if (!VALID_MIME_TYPES.has(mime)) errors.push(TypeError("invalid mime"))
+      // TODO term
+      // TODO cap
+      // TODO paybackRatio
+      return errors
     }
   },
   license: {
     exclusive() {
 
-  
-  
-      
-    },
-    lease() {
+    }, 
+       lease() {
       
     }
   },
