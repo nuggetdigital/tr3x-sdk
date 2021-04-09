@@ -1,11 +1,7 @@
-const tape = require('tape')
-const methid = require('.')
+const tape = require("tape")
+// const tr3xutil = require('.')
 
-tape('hashin a method signature to its id', t => {
-  const sig = 'baz(uint32,bool)'
-  const expected = '0xcdcd77c0'
-
-  t.equal(methid(sig), expected)
-
+tape("todo", t => {
+  t.fail()
   t.end()
 })

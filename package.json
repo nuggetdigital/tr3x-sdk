@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node ./test.js",
-    "fmt": "npx standard --fix"
+    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.js'"
   },
   "repository": {
     "type": "git",
