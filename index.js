@@ -1,9 +1,13 @@
 const VALID_MIME_TYPES = new Set(["audio/wav","audio/mp3"])
 
+const VALID_NETWORKS = new Set(["Moonbeam", "Moonriver"])
+
 module.exports = {
   validate: {
-    exclusive({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32 }) {
+    exclusive({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32,
+    network }) {
       var errors = []
+      if (!VALID_NETWORKS.has(network)) errors.push(TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`))
       if (typeof artist !== "string" || !artist.length) errors.push(TypeError("artist must be a string"))
       if (typeof title !== "string" || !title.length) errors.push(TypeError("title must be a string"))
       if (typeof price !== "bigint") errors.push(TypeError("price must be a bigint"))
@@ -14,9 +18,10 @@ module.exports = {
       return errors
     },
     lease({ artist, title, price, blake3256, copyrightYear, mime, cidv1base32,
-      term, cap, paybackRatio
+      network, term, cap, paybackRatioEURTR3X
     }) {
       var errors = []
+      if (!VALID_NETWORKS.has(network)) errors.push(TypeError(`network must be one of ${[...new Set([1,2,3])].join(", ")}`))
       if (typeof artist !== "string" || !artist.length) errors.push(TypeError("artist must be a string"))
       if (typeof title !== "string" || !title.length) errors.push(TypeError("title must be a string"))
       if (typeof price !== "bigint") errors.push(TypeError("price must be a bigint"))
@@ -24,9 +29,10 @@ module.exports = {
       if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) errors.push(TypeError("copyrightYear must be intlike"))
       if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46) errors.push(TypeError("invalid cidv1base32"))
       if (!VALID_MIME_TYPES.has(mime)) errors.push(TypeError("invalid mime"))
-      // TODO term
-      // TODO cap
-      // TODO paybackRatio
+      if (typeof term !== "bigint") errors.push(TypeError("term must be a bigint"))
+      if (typeof cap !== "bigint") errors.push(TypeError("cap must be a bigint"))
+      // NOTE: ratio repr as number in range 0..1 ? (only in .js - not .sol)
+      if (typeof paybackRatioEURTR3X !== number ||!(paybackRatioEURTR3X  >0) ||paybackRatioEURTR3X >1) errors.push(TypeError("paybackRatioEURTR3X must be a float gt 0 and lte 1"))
       return errors
     }
   },
