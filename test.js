@@ -119,7 +119,7 @@ purchases on the ${network} network.
 
 // WORKS BUT HANGS
 tape.skip("ipfs add & cat", async t => {
-  const ipfs = await ngin.launchIPFS()
+  const ipfs = await ngin.initIPFS()
 
   const file = "fraud world"
 
@@ -134,9 +134,9 @@ tape.skip("ipfs add & cat", async t => {
   ipfs.kill(t.end)
 })
 
-tape("browser wasm blake3", async t => {
-  const blake3 = await ngin.loadBlake3()
-  const hash = blake3.hash("fraud world")
-  console.log(hash)
-  t.same(hash, "")
+tape("blake3256 some data possibly in the browser using wasm", async t => {
+  t.same(
+    ngin.blake3256("fraud world"),
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
+  )
 })

@@ -2,7 +2,7 @@ const IPFS = require("ipfs-core")
 const lite = require("text-encoder-lite")
 const enc = new lite.TextEncoderLite()
 
-module.exports = async function launchIPFS() {
+module.exports = async function init() {
   const ipfs = await IPFS.create()
   return {
     /**

@@ -25,7 +25,7 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake3": "2.1.4",
+    "blake3-wasm": "2.1.5",
     "ipfs-core": "0.5.4",
     "text-encoder-lite": "2.0.0"
   }
