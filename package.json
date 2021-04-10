@@ -23,5 +23,9 @@
   "homepage": "https://github.com/nuggetdigital/tr3x-ngin#readme",
   "devDependencies": {
     "tape": "5.2.1"
+  },
+  "dependencies": {
+    "ipfs-core": "0.5.4",
+    "text-encoder-lite": "2.0.0"
   }
 }

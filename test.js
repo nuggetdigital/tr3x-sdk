@@ -20,8 +20,8 @@ tape("assembles valid params to lease metadata", t => {
     price: price.toString() + "STYC",
     blake3256: "deadbeef".repeat(8),
     mime,
-    cidv1: cidv1base32,
-    term: term.toString(),
+    cid: cidv1base32,
+    term: network + "#" + term.toString(),
     cap: cap.toString() + "€",
     paybackRatioEURTR3X,
     license: `
@@ -82,7 +82,7 @@ tape("assembles valid params to exclusive metadata", t => {
     price: price.toString() + "STYC",
     blake3256: "deadbeef".repeat(8),
     mime,
-    cidv1: cidv1base32,
+    cid: cidv1base32,
     license: `
 The tr3x Public Performance Exclusive License (TR3X PPEL)
 
@@ -115,4 +115,21 @@ purchases on the ${network} network.
   Object.entries(expected).forEach(([k, v]) => t.equal(metadata[k], v, k))
 
   t.end()
+})
+
+// WORKS BUT HANGS
+tape.skip("ipfs add & cat", async t => {
+  const ipfs = await ngin.launchIPFS()
+
+  const file = "fraud world"
+
+  const res = await ipfs.add(file)
+
+  t.ok(res.cid)
+
+  const back = await ipfs.cat(res.cid, "utf8")
+
+  t.same(back, file)
+
+  ipfs.kill(t.end)
 })
