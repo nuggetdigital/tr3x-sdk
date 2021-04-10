@@ -133,3 +133,10 @@ tape.skip("ipfs add & cat", async t => {
 
   ipfs.kill(t.end)
 })
+
+tape("browser wasm blake3", async t => {
+  const blake3 = await ngin.loadBlake3()
+  const hash = blake3.hash("fraud world")
+  console.log(hash)
+  t.same(hash, "")
+})
