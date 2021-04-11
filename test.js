@@ -1,4 +1,4 @@
-const tape = require("tape")
+const tape = require("tape-moonbeam")
 const ngin = require(".")
 const lite = require("text-encoder-lite")
 const enc = new lite.TextEncoderLite()
@@ -155,15 +155,18 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
   )
 })
 
+let tr3xcore
+
 tape("tr3x#create", async t => {
-  t.same(
-    ngin.blake3256("fraud world").toString("hex"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
-    "utf8 input"
-  )
-  t.same(
-    ngin.blake3256(enc.encode("fraud world")).toString("hex"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
-    "Uint8Array input"
-  )
+  var artifacts = await t.compile(require.resolve("./misc/tr3x.sol"))
+  tr3xcore = await t.deploy(artifacts)
+console.log(tr3xcore)
+  const createLicense = ngin.initCreateLicense()
+  const cid = "7".repeat(46)
+  const price = 1000000n
+  const isExclusive = false
+
+  const receipt = await createLicense({ cid, price, isExclusive }, t.genesis)
+
+  console.log(receipt)
 })
