@@ -1,12 +1,24 @@
-const Web3 = require('web3')
+const Web3 = require("web3")
+const ERC1155Tr3xAbi = require("./misc/bin/ERC1155Tr3x.abi")
 
-module.exports = function init(web3 = new Web3(process.env.MOONBEAM_RPC || 'http://localhost:19420')) {
-  return function createLicense({ cid, price, isExclusive }, { address, privateKey }) {
+module.exports = function init(
+  web3 = new Web3(process.env.MOONBEAM_RPC || "http://localhost:19420")
+) {
+  return async function createLicense(
+    { cid, price, isExclusive },
+    contract,
+    { address, privateKey }
+  ) {
     const tx = await web3.eth.accounts.signTransaction(
       {
-          from: address,
-          gas: '0x4C4B40', // TODO
-          data: 'TODO'
+        from: address,
+        to: contract,
+        gas: "0x4C4B40",
+        data: web3.eth.abi.encodeFunctionCall(ERC1155Tr3xAbi, [
+          cid,
+          price,
+          isExclusive
+        ])
       },
       privateKey
     )
