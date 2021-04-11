@@ -10,7 +10,8 @@ module.exports = {
     copyrightYear,
     mime,
     cidv1base32,
-    network
+    network,
+    payee
   }) {
     if (!VALID_NETWORKS.has(network))
       throw TypeError(
@@ -29,6 +30,8 @@ module.exports = {
     if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46)
       throw TypeError("invalid cidv1base32")
     if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
+    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee))
+      throw TypeError("payee must match the ethereum address format")
     return {
       // IPFS content identifier of the track
       cid: cidv1base32,
@@ -54,7 +57,9 @@ Claims of this particular license must be verified against their respective
 purchases on the ${network} network.
 `.trim(),
       // minimum STYC price
-      price: price.toString() + "STYC"
+      price: price.toString() + "STYC",
+      // 4 now just a moonbeam address
+      payee
     }
   },
   lease({
@@ -66,6 +71,7 @@ purchases on the ${network} network.
     mime,
     cidv1base32,
     network,
+    payee,
     term,
     cap,
     paybackRatioEURTR3X
@@ -87,6 +93,8 @@ purchases on the ${network} network.
     if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46)
       throw TypeError("invalid cidv1base32")
     if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
+    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee))
+      throw TypeError("payee must match the ethereum address format")
     if (typeof term !== "bigint") throw TypeError("term must be a bigint")
     if (typeof cap !== "bigint") throw TypeError("cap must be a bigint")
     // NOTE: ratio repr as number in range 0..1 ? (only in .js - not .sol)
@@ -127,6 +135,8 @@ purchases on the ${network} network.
 `.trim(),
       // minimum STYC price
       price: price.toString() + "STYC",
+      // 4 now just a moonbeam address
+      payee,
       // payback exchange rate for lease violations
       paybackRatioEURTR3X,
       // ~lease validity period - expiry date expressed as finalized block number

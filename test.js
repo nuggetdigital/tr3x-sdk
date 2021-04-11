@@ -1,5 +1,7 @@
 const tape = require("tape")
 const ngin = require(".")
+const lite = require("text-encoder-lite")
+const enc = new lite.TextEncoderLite()
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -10,6 +12,7 @@ tape("assembles valid params to lease metadata", t => {
   const mime = "audio/mp3"
   const cidv1base32 = "7".repeat(46)
   const network = "Moonbeam"
+  const payee = "0x" + "0".repeat(64)
   const term = 100419n
   const cap = 25000n
   const paybackRatioEURTR3X = 1.0
@@ -18,6 +21,7 @@ tape("assembles valid params to lease metadata", t => {
     artist,
     title,
     price: price.toString() + "STYC",
+    payee,
     blake3256: "deadbeef".repeat(8),
     mime,
     cid: cidv1base32,
@@ -51,6 +55,7 @@ purchases on the ${network} network.
     artist,
     title,
     price,
+    payee,
     blake3256,
     copyrightYear,
     mime,
@@ -75,11 +80,13 @@ tape("assembles valid params to exclusive metadata", t => {
   const mime = "audio/mp3"
   const cidv1base32 = "7".repeat(46)
   const network = "Moonbeam"
+  const payee = "0x" + "0".repeat(64)
 
   const expected = {
     artist,
     title,
     price: price.toString() + "STYC",
+    payee,
     blake3256: "deadbeef".repeat(8),
     mime,
     cid: cidv1base32,
@@ -105,6 +112,7 @@ purchases on the ${network} network.
     artist,
     title,
     price,
+    payee,
     blake3256,
     copyrightYear,
     mime,
@@ -136,7 +144,13 @@ tape.skip("ipfs add & cat", async t => {
 
 tape("blake3256 some data possibly in the browser using wasm", async t => {
   t.same(
-    ngin.blake3256("fraud world"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
+    ngin.blake3256("fraud world").toString("hex"),
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
+    "utf8 input"
+  )
+  t.same(
+    ngin.blake3256(enc.encode("fraud world")).toString("hex"),
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
+    "Uint8Array input"
   )
 })
