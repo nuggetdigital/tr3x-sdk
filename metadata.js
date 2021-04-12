@@ -41,13 +41,14 @@ module.exports = {
       mime,
       artist,
       license: `
-The tr3x Public Performance Exclusive License (TR3X PPEL)
+The tr3x public performance exclusive license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
-to the first person purchasing a token of this digital license 
-asset to exclusively perform the associated track named "${title}", 
-© ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash 
-digest "${blake3256}", in public.
+payable to ${network} network address ${payee}, to the first person 
+purchasing a token of this digital license asset to exclusively 
+perform the associated track named "${title}", © ${copyrightYear} 
+${artist}, identified by its BLAKE3 256-bit hash digest ${blake3256}, 
+in public.
 
 The artist name "${artist}" must be visibly included in all digital and 
 physical copies and noticeably mentioned at any public performances 
@@ -113,18 +114,19 @@ purchases on the ${network} network.
       mime,
       artist,
       license: `
-The tr3x Public Performance Lease License (TR3X PPLL)
+The tr3x public performance lease license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
-to any person purchasing a token of this digital license asset to perform 
-the associated track named "${title}", © ${copyrightYear} ${artist}, 
-identified by its BLAKE3 256-bit hash digest "${blake3256}", in public 
-up until the ${network} network has finalized block number ${term}.
+payable to ${network} network address ${payee}, to any person purchasing 
+a token of this digital license asset to perform the associated track 
+named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 
+256-bit hash digest ${blake3256}, in public up until the ${network} 
+network has finalized block number ${term}.
 
 Maximum profits off of public performances of the lessee must not excceed 
 ${cap}€, otherwise the lessee must monthly payback 100% of the excess 
-profits via the marketplace in TR3X at the EUR/TR3X payback ratio of 
-${paybackRatioEURTR3X}.
+profits to above payee via the marketplace in TR3X at the EUR/TR3X payback 
+ratio of ${paybackRatioEURTR3X}.
 
 The artist name "${artist}" must be visibly included in all digital and 
 physical copies and noticeably mentioned at any public performances 
