@@ -4,8 +4,6 @@
 
 ## todo
 
-+ cleanup & toss ../misc
-
 + add tr3x.sol by pullin tr3x in as a git submodule
 
 + integrate ../test.js into . (hardhat)
