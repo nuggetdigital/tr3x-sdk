@@ -776,12 +776,12 @@ contract ERC1155MixedFungible is ERC1155 {
     }
 }
 
-///ERC1155Tr3x/////////////////////////////////////////////////////////////////
+///Tr3x/////////////////////////////////////////////////////////////////
 
 /**
     @dev Mintable customized form of ERC1155 incorporating all tr3x logic.
 */
-contract ERC1155Tr3x is ERC1155MixedFungible {
+contract Tr3x is ERC1155MixedFungible {
     address owner;
     uint256 nonce;
     mapping(uint256 => address) public creators;
