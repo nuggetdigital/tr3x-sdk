@@ -3,8 +3,10 @@ const { expect } = require("chai");
 describe("Tr3x", function() {
   const TR3X = 1
   let tr3x
+  let creator1
 
   before(async () => {
+    [creator1, ...more] = await ethers.getSigners()
     const Tr3x = await ethers.getContractFactory("Tr3x");
     tr3x = await Tr3x.deploy();
   })
@@ -15,28 +17,40 @@ describe("Tr3x", function() {
   })
 
   it("should create an exclusive license aka a non-fungible token", async function() {
-    const creator = ethers.Wallet.createRandom()
     const metadataCid = "Qm" + "7".repeat(44)
     const trackPrice = 1000000n
     const isExclusive = true
 
-    const tokenId = await expect(
-        await tr3x
-          .connect(creator)
-          .create(metadataCid, trackPrice, isExclusive)
-      )
-      .to.emit(tr3x, 'TransferSingle')
-      .withArgs(creator.address, address(0x0), address(0x0), tokenId, 0)
+    const tx = await tr3x
+      .connect(creator1)
+      .create(metadataCid, trackPrice, isExclusive)
+
+    const receipt = await tx.wait()
+
+    // console.log(receipt)
+
+    const transferSingleEvent = receipt.events[0]
+    const purchaseEvent = receipt.events[0]
+
+    console.log(transferSingleEvent.decode())
+
+    // expect(transferSingleEvent).to.equal()
+      // await expect(
+      // )
+      // .to.emit(tr3x, 'TransferSingle')
+      // .withArgs(creator1.address, address(0x0), address(0x0), tokenId, 0)
 
     // assert emit TransferSingle(msg.sender, address(0x0), address(0x0), _type, 0);
     // assert emit URI(_uri, _type);
+
+// console.log("$$$$$$$$",tokenId)
 
     // assert id == 2
     expect(tokenId).to.equal(2)
 
     // assert creators[tokenId] == TODO
-    const creatorAddress = await tr3x.creators(tokenId)
-    expect(creatorAddress).to.equal(creator.address)
+    const creator1Address = await tr3x.creators(tokenId)
+    expect(creator1Address).to.equal(creator1.address)
 
     // assert prices[tokenId] == price
     const tokenPrice = await tr3x.prices(tokenId)
