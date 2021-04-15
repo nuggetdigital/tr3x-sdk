@@ -1,6 +1,9 @@
 {
   "scripts": {
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "solc": "npx hardhat compile",
+    "deploy": "npx hardhat run --network moonbase scripts/deploy.js",
+    "cockpit": "npx hardhat console --network moonbase"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

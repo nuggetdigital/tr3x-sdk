@@ -16,23 +16,42 @@ describe("Tr3x", function() {
     expect(creatorOfTR3X).to.equal("0x" + "0".repeat(40));
   })
 
-  it("should create an exclusive license aka a non-fungible token", async function() {
+  it("should create a lease license", async function() {
     const metadataCid = "Qm" + "7".repeat(44)
     const trackPrice = 1000000n
-    const isExclusive = true
+    const isNonFungible = false
 
     const tx = await tr3x
       .connect(creator1)
-      .create(metadataCid, trackPrice, isExclusive)
+      .create(metadataCid, trackPrice, isNonFungible)
 
     const receipt = await tx.wait()
 
     // console.log(receipt)
 
-    const transferSingleEvent = receipt.events[0]
-    const purchaseEvent = receipt.events[0]
+const transferSingleEvent = receipt.events.find(event => {
+  return event.eventSignature === "TransferSingle(address,address,address,uint256,uint256)"
+})
 
-    console.log(transferSingleEvent.decode())
+    const uriEvent = receipt.events.find(event => {
+      return event.eventSignature === "URI(string,uint256)"
+    })
+
+
+
+    // const transferSingleEvent = receipt.events[0]
+    // const purchaseEvent = receipt.events[0]
+
+    // console.log(transferSingleEvent)
+    // console.log()
+    // console.log(transferSingleEvent.args)
+
+    // const tokenIdRaw = transferSingleEvent.args._id.toHexString()
+
+    const tokenId = uriEvent.args._id
+
+    console.log("tokenId", tokenId)
+
 
     // expect(transferSingleEvent).to.equal()
       // await expect(
@@ -46,7 +65,7 @@ describe("Tr3x", function() {
 // console.log("$$$$$$$$",tokenId)
 
     // assert id == 2
-    expect(tokenId).to.equal(2)
+    expect(tokenId).to.equal(2n)
 
     // assert creators[tokenId] == TODO
     const creator1Address = await tr3x.creators(tokenId)
