@@ -1,10 +1,9 @@
-// ethers plugin required to interact with the contract
-require('@nomiclabs/hardhat-ethers');
+// hardhat + ethers + waffle
+require("@nomiclabs/hardhat-waffle");
 
 module.exports = {
   // latest Solidity version
   solidity: "0.8.3",
-
   networks: {
     // Moonbase Alpha network specification
     moonbase: {
@@ -13,5 +12,8 @@ module.exports = {
       // private key from the pre-funded Moonbase Alpha testing account
       accounts: [require('./secrets.json').privateKey]
     }
+  },
+  paths: {
+    artifacts: "./artifacts"
   }
 };
