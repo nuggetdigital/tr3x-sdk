@@ -1,5 +1,10 @@
 const { expect } = require("chai");
 
+function littleEndianHexToBigInt(hex) {
+  if (hex.toHexString) hex = hex.toHexString()
+  return BigInt("0x" + hex.match(/.{1,2}/g).slice(1).reverse().join(''))
+}
+
 describe("Tr3x", function() {
   const TR3X = 1
   let tr3x
@@ -27,52 +32,30 @@ describe("Tr3x", function() {
 
     const receipt = await tx.wait()
 
-    // console.log(receipt)
+    const transferSingleEvent = receipt.events.find(event => 
+      event.eventSignature === "TransferSingle(address,address,address,uint256,uint256)")
 
-const transferSingleEvent = receipt.events.find(event => {
-  return event.eventSignature === "TransferSingle(address,address,address,uint256,uint256)"
-})
+    const uriEvent = receipt.events.find(event => 
+      event.eventSignature === "URI(string,uint256)")
 
-    const uriEvent = receipt.events.find(event => {
-      return event.eventSignature === "URI(string,uint256)"
-    })
-
-
-
-    // const transferSingleEvent = receipt.events[0]
-    // const purchaseEvent = receipt.events[0]
-
-    // console.log(transferSingleEvent)
-    // console.log()
-    // console.log(transferSingleEvent.args)
-
-    // const tokenIdRaw = transferSingleEvent.args._id.toHexString()
-
-    const tokenId = uriEvent.args._id
-
-    console.log("tokenId", tokenId)
-
-
-    // expect(transferSingleEvent).to.equal()
-      // await expect(
-      // )
-      // .to.emit(tr3x, 'TransferSingle')
-      // .withArgs(creator1.address, address(0x0), address(0x0), tokenId, 0)
-
+    // TODO: MK SR W€ HV SN@PSH0T LYK TSTS
     // assert emit TransferSingle(msg.sender, address(0x0), address(0x0), _type, 0);
     // assert emit URI(_uri, _type);
 
-// console.log("$$$$$$$$",tokenId)
+    console.log("$$$$ uriEvent", uriEvent)
 
-    // assert id == 2
+    // NOTE: transformin from le -> be, then interpretin it as bigint
+    const tokenId = littleEndianHexToBigInt(uriEvent.args._id)
     expect(tokenId).to.equal(2n)
 
-    // assert creators[tokenId] == TODO
     const creator1Address = await tr3x.creators(tokenId)
+    console.log("$$$ creator1Address", creator1Address)
+    // FAILS
     expect(creator1Address).to.equal(creator1.address)
 
-    // assert prices[tokenId] == price
-    const tokenPrice = await tr3x.prices(tokenId)
-    expect(tokenPrice).to.equal(price)
-  });
-});
+    const tokenPrice = littleEndianHexToBigInt(await tr3x.prices(tokenId))
+    console.log("$$$ tokenPrice",tokenPrice)
+    // FAILS
+    expect(tokenPrice).to.equal(trackPrice)
+  })
+})
