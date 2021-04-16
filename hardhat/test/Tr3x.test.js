@@ -1,12 +1,20 @@
 const { expect } = require("chai");
 
+// Transforms a hex string from le -> be, then interpretin it as a bigint.
 function littleEndianHexToBigInt(hex) {
   if (hex.toHexString) hex = hex.toHexString()
   return BigInt("0x" + hex.match(/.{1,2}/g).slice(1).reverse().join(''))
 }
 
+// NOTE: expect(bigint).to.equal(bigint) gives false positives...
+// Thus, we `.toString()` bigints before comparing them.
+function s(x) {
+  return x.toString()
+}
+
 describe("Tr3x", function() {
   const TR3X = 1
+  const ZERO_ADDRESS = "0x" + "0".repeat(40)
   let tr3x
   let creator1
 
@@ -18,7 +26,7 @@ describe("Tr3x", function() {
 
   it("should assign the TR3X creator role to the deployer", async function() {
     const creatorOfTR3X = await tr3x.creators(TR3X);
-    expect(creatorOfTR3X).to.equal("0x" + "0".repeat(40));
+    expect(creatorOfTR3X).to.equal(ZERO_ADDRESS);
   })
 
   it("should create a lease license", async function() {
@@ -44,9 +52,8 @@ describe("Tr3x", function() {
 
     console.log("$$$$ uriEvent", uriEvent)
 
-    // NOTE: transformin from le -> be, then interpretin it as bigint
     const tokenId = littleEndianHexToBigInt(uriEvent.args._id)
-    expect(tokenId).to.equal(2n)
+    expect(s(tokenId)).to.equal(s(2n))
 
     const creator1Address = await tr3x.creators(tokenId)
     console.log("$$$ creator1Address", creator1Address)
@@ -54,8 +61,9 @@ describe("Tr3x", function() {
     expect(creator1Address).to.equal(creator1.address)
 
     const tokenPrice = littleEndianHexToBigInt(await tr3x.prices(tokenId))
-    console.log("$$$ tokenPrice",tokenPrice)
+    console.log("tokenPrice",tokenPrice)
+    console.log("trackPrice",trackPrice)
     // FAILS
-    expect(tokenPrice).to.equal(trackPrice)
+    expect(s(tokenPrice)).to.equal(s(trackPrice))
   })
 })
