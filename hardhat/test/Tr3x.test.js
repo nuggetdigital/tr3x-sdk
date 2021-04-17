@@ -2,6 +2,7 @@ const { expect } = require("chai");
 
 const { waffle } = require("hardhat");
 const { deployContract } = waffle;
+const { BigNumber } = ethers
 
 // Transforms a hex string from le -> be, then interpretin it as a bigint.
 function littleEndianHexToBigInt(hex) {
@@ -41,9 +42,14 @@ describe("Tr3x", function() {
     
     ////////////////////////////////////////////////////
 
-    // const tx = await tr3x
-    //   .connect(creator1)
-    //   .create(metadataCid, trackPrice, isNonFungible)
+    const tx = await expect(
+      tr3x
+        .connect(creator1)
+        .create(metadataCid, trackPrice, isNonFungible)
+    ).to.emit(tr3x, 'TransferSingle').withArgs(creator1.address, ZERO_ADDRESS, ZERO_ADDRESS, 
+      // TODO: how2 handle endianess of these bignums
+      BigNumber.from(2n), BigNumber.from(0n));
+
 
     // const receipt = await tx.wait()
 
