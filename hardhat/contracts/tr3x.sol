@@ -785,7 +785,6 @@ contract Tr3x is ERC1155MixedFungible {
     address owner;
     uint256 nonce;
     mapping(uint256 => address) public creators;
-    mapping(uint256 => uint256) public maxIndex;
     mapping(uint256 => uint256) public prices;
     mapping(uint256 => bool) public inactive;
 
@@ -850,90 +849,11 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     /**
-     * @notice Mints a non-fungible token to a purchaser.
-     * Only available for the creator of the given exclusive.
-     * @param _type Exclusive identifier.
-     * @param _to Recipient that will receive the NFI aka exclusive.
-     */
-    function mintNonFungible(uint256 _type, address _to)
-        external
-        creatorOnly(_type)
-    {
-        // No need to check this is a nf type rather than an id since
-        // creatorOnly() will only let a type pass through.
-        require(isNonFungible(_type));
-
-        // Index are 1-based.
-        uint256 index = maxIndex[_type] + 1;
-        maxIndex[_type] = SafeMath.add(1, maxIndex[_type]);
-
-        address dst = _to;
-        uint256 id = _type | index;
-
-        nfOwners[id] = dst;
-
-        // You could use base-type id to store NF type balances if you wish.
-        // balances[_type][dst] = quantity.add(balances[_type][dst]);
-
-        emit TransferSingle(msg.sender, address(0x0), dst, id, 1);
-
-        if (Address.isContract(dst)) {
-            _doSafeTransferAcceptanceCheck(
-                msg.sender,
-                msg.sender,
-                dst,
-                id,
-                1,
-                ""
-            );
-        }
-    }
-
-    /**
-     * @notice Mints fungible tokens to a purchasers.
-     * Only available for the creator of the given lease.
-     * @param _id Lease identifier.
-     * @param _to Recipients that will receive item amounts as specified in _quantities.
-     * @param _quantities Item quantities to transfer to each corresponding recipient.
-     */
-    function mintFungible(
-        uint256 _id,
-        address[] calldata _to,
-        uint256[] calldata _quantities
-    ) external creatorOnly(_id) {
-        require(isFungible(_id));
-
-        for (uint256 i = 0; i < _to.length; ++i) {
-            address to = _to[i];
-            uint256 quantity = _quantities[i];
-
-            // Grant the items to the caller
-            balances[_id][to] = SafeMath.add(quantity, balances[_id][to]);
-
-            // Emit the Transfer/Mint event.
-            // the 0x0 source address implies a mint
-            // It will also provide the circulating supply info.
-            emit TransferSingle(msg.sender, address(0x0), to, _id, quantity);
-
-            if (Address.isContract(to)) {
-                _doSafeTransferAcceptanceCheck(
-                    msg.sender,
-                    msg.sender,
-                    to,
-                    _id,
-                    quantity,
-                    ""
-                );
-            }
-        }
-    }
-
-    /**
      * @notice Mints fungible native tokens. Only available to the owner.
      * @param _to Recipients that will receive currency as specified in _quantities.
      * @param _quantities Item quantities to transfer to each corresponding recipient.
      */
-    function mintFungibleNative(
+    function mintNative(
         address[] calldata _to,
         uint256[] calldata _quantities
     ) external ownerOnly() {
@@ -972,23 +892,41 @@ contract Tr3x is ERC1155MixedFungible {
         external
         activeOnly(_type)
     {
+        // Makin sure the buyer is payin the minimum price at least.
+        require(_price >= prices[_type]);
+
         if (isNonFungible(_type)) {
             // We regard this an exclusive right
             // and assert that the exclusive right has not been acquired.
             require(nfOwners[_type] == address(0x0));
         }
 
-        // Makin sure the buyer is payin the minimum price at least.
-        require(_price >= prices[_type]);
-
-        // Payin the SLYC price (_id 1 is the native STYC/SLYC token).
+        // Payin the STYC price (_type 1 is the native TR3X token).
         this.safeTransferFrom(msg.sender, creators[_type], 1, _price, "");
 
-        // Transferin the token.
-        this.safeTransferFrom(creators[_type], msg.sender, _type, 1, "");
+        // Transferin the license token.
+        if (isNonFungible(_type)) {
+          nfOwners[_type] = msg.sender;
+        } else {
+         this.safeTransferFrom(address(0x0), msg.sender, _type, 1, "");
+        }
+
+        // Emit the Transfer/Mint event - the 0x0 source address implies a mint.
+            emit TransferSingle(msg.sender, address(0x0), msg.sender, _type, 1);
 
         // Emitin the Purchase event.
         emit Purchase(_type, creators[_type], msg.sender, _price);
+
+            if (Address.isContract(msg.sender)) {
+                _doSafeTransferAcceptanceCheck(
+                    msg.sender,
+                   address(0x0),
+                    msg.sender,
+                    _type,
+                    1,
+                    ""
+                );
+            }
     }
 
     /**

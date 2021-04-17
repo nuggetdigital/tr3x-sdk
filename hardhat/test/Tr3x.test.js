@@ -135,9 +135,9 @@ describe("Tr3x", function () {
     })
   })
 
-  // it("should allow different parties to purchase the same lease license", async function () {
-
-  // })
+  it("should allow different parties to purchase the same lease license", async function () {
+    
+  })
 
   // it("should allow only one party to purchase an exclusive license", async function () {
 
