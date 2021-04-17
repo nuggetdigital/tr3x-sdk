@@ -3,7 +3,8 @@
     "test": "hardhat test",
     "solc": "npx hardhat compile",
     "deploy": "npx hardhat run --network moonbase scripts/deploy.js",
-    "cockpit": "npx hardhat console --network moonbase"
+    "cockpit": "npx hardhat console --network moonbase",
+    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './**.js'"
   },
   "dependencies": {
     "chai": "^4.2.0",

@@ -825,15 +825,10 @@ contract Tr3x is ERC1155MixedFungible {
      * @param _uri Content identifier of the metadata JSON doc stored on IPFS.
      * @param _price Minimum price as STYC amount.
      * @param _isNF Whether the token is non-fungible aka an exclusive.
-     * @return _type Numeric _type identifier of the token.
      */
-    function create(
-        string calldata _uri,
-        uint256 _price,
-        bool _isNF
-    ) external returns (uint256 _type) {
+    function create(string calldata _uri, uint256 _price, bool _isNF) external {
         // Store the type in the upper 128 bits
-        _type = (++nonce << 128);
+        uint256 _type = (++nonce << 128);
 
         // Set a flag if this is an NFI.
         if (_isNF) {

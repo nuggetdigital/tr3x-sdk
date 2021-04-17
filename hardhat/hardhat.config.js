@@ -1,5 +1,5 @@
 // hardhat + ethers + waffle
-require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-waffle")
 
 module.exports = {
   // latest Solidity version
@@ -10,10 +10,10 @@ module.exports = {
       url: `https://rpc.testnet.moonbeam.network`,
       chainId: 1287,
       // private key from the pre-funded Moonbase Alpha testing account
-      accounts: [require('./secrets.json').privateKey]
+      accounts: [require("./secrets.json").privateKey]
     }
   },
   paths: {
     artifacts: "./artifacts"
   }
-};
+}

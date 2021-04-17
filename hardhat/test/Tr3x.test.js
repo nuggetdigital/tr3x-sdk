@@ -1,82 +1,145 @@
-const { expect } = require("chai");
+const { expect } = require("chai")
 
-const { waffle } = require("hardhat");
-const { deployContract } = waffle;
-const { BigNumber } = ethers
-
-// Transforms a hex string from le -> be, then interpretin it as a bigint.
-function littleEndianHexToBigInt(hex) {
-  if (hex.toHexString) hex = hex.toHexString()
-  return BigInt("0x" + hex.match(/.{1,2}/g).slice(1).reverse().join(''))
+/**
+ * takes a big endian hex string number representation and returns both of
+ * its endianness variants as simple js bigints.
+ * @param {*} bigEndianLicenseIdHexString
+ * @returns {{ le: bigint, be: bigint }} big and little endian license ids.
+ */
+function xEndianLicenseId(bigEndianLicenseIdHexString) {
+  return {
+    be: BigInt(bigEndianLicenseIdHexString),
+    le: BigInt(
+      "0x" +
+        bigEndianLicenseIdHexString
+          .match(/.{1,2}/g)
+          .slice(1)
+          .reverse()
+          .join("")
+    )
+  }
 }
 
-// NOTE: expect(bigint).to.equal(bigint) gives false positives...
-// Thus, we `.toString()` bigints before comparing them.
-function s(x) {
-  return x.toString()
-}
-
-describe("Tr3x", function() {
+describe("Tr3x", function () {
   const TR3X = 1
   const ZERO_ADDRESS = "0x" + "0".repeat(40)
-  let tr3x
-  let creator1
+  let tr3x,
+    deployer,
+    creator1,
+    creator2,
+    purchaser1,
+    purchaser2,
+    leaseLicenseId,
+    exclusiveLicenseId
 
   before(async () => {
-    [creator1, ...more] = await ethers.getSigners()
-    const Tr3x = await ethers.getContractFactory("Tr3x");
-    tr3x = await Tr3x.deploy();
+    ;[
+      deployer,
+      creator1,
+      creator2,
+      purchaser1,
+      purchaser2,
+      ...more
+    ] = await ethers.getSigners()
+    const Tr3x = await ethers.getContractFactory("Tr3x")
+    // TODO: find a way to deploy as specific signer
+    tr3x = await Tr3x.deploy()
   })
 
-  it("should assign the TR3X creator role to the deployer", async function() {
-    const creatorOfTR3X = await tr3x.creators(TR3X);
-    expect(creatorOfTR3X).to.equal(ZERO_ADDRESS);
+  describe("contract instantiation", () => {
+    it("should assign the TR3X creator role to the deployer", async function () {
+      const creatorOfTR3X = await tr3x.creators(TR3X)
+      expect(creatorOfTR3X).to.equal(ZERO_ADDRESS)
+    })
   })
 
-  it("should create a lease license", async function() {
-    const metadataCid = "Qm" + "7".repeat(44)
-    const trackPrice = 1000000n
-    const isNonFungible = false
+  describe("license creation", () => {
+    it("should create a lease license", async function () {
+      // contract method inputs
+      const metadataCid = "Qm" + "7".repeat(44)
+      const price = 1000000n
+      const isExclusive = false
+      // expected outputs
+      leaseLicenseId = xEndianLicenseId("0x0000000000000000000000000000000002")
 
-    ////////////////////////////////////////////////////
-    
-    ////////////////////////////////////////////////////
-
-    const tx = await expect(
-      tr3x
+      // kickin off license creation - signin the tx as creator1
+      const licenseCreation = tr3x
         .connect(creator1)
-        .create(metadataCid, trackPrice, isNonFungible)
-    ).to.emit(tr3x, 'TransferSingle').withArgs(creator1.address, ZERO_ADDRESS, ZERO_ADDRESS, 
-      // TODO: how2 handle endianess of these bignums
-      BigNumber.from(2n), BigNumber.from(0n));
+        .create(metadataCid, price, isExclusive)
 
+      // awaitin license creation - also signalled by events
+      await expect(licenseCreation)
+        // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          creator1.address,
+          ZERO_ADDRESS,
+          ZERO_ADDRESS,
+          leaseLicenseId.le,
+          0n
+        )
+        // following ERC-1155 an URI event SHOULD be emitted for mints
+        .to.emit(tr3x, "URI")
+        .withArgs(metadataCid, leaseLicenseId.le)
 
-    // const receipt = await tx.wait()
+      // fetchin the license creator
+      const licenseCreator = await tr3x.creators(leaseLicenseId.le)
 
-    // const transferSingleEvent = receipt.events.find(event => 
-    //   event.eventSignature === "TransferSingle(address,address,address,uint256,uint256)")
+      expect(licenseCreator).to.equal(creator1.address)
 
-    // const uriEvent = receipt.events.find(event => 
-    //   event.eventSignature === "URI(string,uint256)")
+      // fetchin the license price
+      const licensePrice = await tr3x.prices(leaseLicenseId.le)
 
-    // // TODO: MK SR W€ HV SN@PSH0T LYK TSTS
-    // // assert emit TransferSingle(msg.sender, address(0x0), address(0x0), _type, 0);
-    // // assert emit URI(_uri, _type);
+      expect(licensePrice).to.equal(price)
+    })
 
-    // console.log("$$$$ uriEvent", uriEvent)
+    it("should create an exclusive license", async function () {
+      // contract method inputs
+      const metadataCid = "Qm" + "5".repeat(44)
+      const price = 1000419n
+      const isExclusive = true
+      // expected outputs
+      exclusiveLicenseId = xEndianLicenseId(
+        "0x0000000000000000000000000000000003"
+      )
 
-    // const tokenId = littleEndianHexToBigInt(uriEvent.args._id)
-    // expect(s(tokenId)).to.equal(s(2n))
+      // kickin off license creation - signin the tx as creator1
+      const licenseCreation = tr3x
+        .connect(creator2)
+        .create(metadataCid, price, isExclusive)
 
-    // const creator1Address = await tr3x.creators(tokenId)
-    // console.log("$$$ creator1Address", creator1Address)
-    // // FAILS
-    // expect(creator1Address).to.equal(creator1.address)
+      // awaitin license creation - also signalled by events
+      await expect(licenseCreation)
+        // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          creator1.address,
+          ZERO_ADDRESS,
+          ZERO_ADDRESS,
+          exclusiveLicenseId.le,
+          0n
+        )
+        // following ERC-1155 an URI event SHOULD be emitted for mints
+        .to.emit(tr3x, "URI")
+        .withArgs(metadataCid, exclusiveLicenseId.le)
 
-    // const tokenPrice = littleEndianHexToBigInt(await tr3x.prices(tokenId))
-    // console.log("tokenPrice",tokenPrice)
-    // console.log("trackPrice",trackPrice)
-    // // FAILS
-    // expect(s(tokenPrice)).to.equal(s(trackPrice))
+      // fetchin the license creator
+      const licenseCreator = await tr3x.creators(exclusiveLicenseId.le)
+
+      expect(licenseCreator).to.equal(creator2.address)
+
+      // fetchin the license price
+      const licensePrice = await tr3x.prices(exclusiveLicenseId.le)
+
+      expect(licensePrice).to.equal(price)
+    })
   })
+
+  // it("should allow different parties to purchase the same lease license", async function () {
+
+  // })
+
+  // it("should allow only one party to purchase an exclusive license", async function () {
+
+  // })
 })
