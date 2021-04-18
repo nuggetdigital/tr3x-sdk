@@ -10,6 +10,9 @@ pragma solidity ^0.8.0;
 // Based upon enjin's ERC1155 reference implementation
 // @ https://github.com/enjin/erc-1155/tree/678092281094b7cd5328b417c677be05338ea0d6
 
+// 2 debug
+import "hardhat/console.sol";
+
 ///CommonConstants/////////////////////////////////////////////////////////////
 
 /**
@@ -803,7 +806,7 @@ contract Tr3x is ERC1155MixedFungible {
         _;
     }
 
-    event Purchase(uint256 _type, address _from, address _to, uint256 _price);
+    event Purchase(uint256 _type, uint256 _price, address _from, address _to);
 
     /**
      * @notice Instantiates the tr3x contract.
@@ -900,10 +903,10 @@ contract Tr3x is ERC1155MixedFungible {
             // and assert that the exclusive right has not been acquired.
             require(nfOwners[_type] == address(0x0));
         }
-
+        console.log("BOUTO safeTransferFrom(msg.sender, creators[_type], 1, _price, '');");
         // Payin the STYC price (_type 1 is the native TR3X token).
         this.safeTransferFrom(msg.sender, creators[_type], 1, _price, "");
-
+        console.log("just transfered sth from %s to %s", msg.sender, creators[_type]);
         // Transferin the license token.
         if (isNonFungible(_type)) {
           nfOwners[_type] = msg.sender;
@@ -912,10 +915,10 @@ contract Tr3x is ERC1155MixedFungible {
         }
 
         // Emit the Transfer/Mint event - the 0x0 source address implies a mint.
-            emit TransferSingle(msg.sender, address(0x0), msg.sender, _type, 1);
+        emit TransferSingle(msg.sender, address(0x0), msg.sender, _type, 1);
 
         // Emitin the Purchase event.
-        emit Purchase(_type, creators[_type], msg.sender, _price);
+        emit Purchase(_type, _price, creators[_type], msg.sender);
 
             if (Address.isContract(msg.sender)) {
                 _doSafeTransferAcceptanceCheck(

@@ -23,13 +23,18 @@ describe("Tr3x", function () {
   const EXCLUSIVE_LICENSE_ID =
     BigInt("0x0300000000000000000000000000000000") | (1n << 255n)
   // the test global contract and identities
-  let tr3x, deployer, creator1, creator2, purchaser1, purchaser2
+  let tr3x,
+    deployer,
+    leaseLicenseCreator,
+    exclusiveLicenseCreator,
+    purchaser1,
+    purchaser2
 
   before(async () => {
     ;[
       deployer,
-      creator1,
-      creator2,
+      leaseLicenseCreator,
+      exclusiveLicenseCreator,
       purchaser1,
       purchaser2,
       ...more
@@ -48,9 +53,9 @@ describe("Tr3x", function () {
 
   describe("license creation", () => {
     it("should create a lease license", async () => {
-      // kickin off lease license creation - signin the tx as creator1
+      // kickin off lease license creation - signin the tx as leaseLicenseCreator
       const licenseCreation = tr3x
-        .connect(creator1)
+        .connect(leaseLicenseCreator)
         // last param indicates non-fungibility aka isExclusive = false
         .create(LEASE_LICENSE_METADATA_CID, LEASE_LICENSE_PRICE, false)
 
@@ -59,7 +64,7 @@ describe("Tr3x", function () {
         // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
         .to.emit(tr3x, "TransferSingle")
         .withArgs(
-          creator1.address,
+          leaseLicenseCreator.address,
           ZERO_ADDRESS,
           ZERO_ADDRESS,
           LEASE_LICENSE_ID,
@@ -72,7 +77,7 @@ describe("Tr3x", function () {
       // fetchin the license creator
       const licenseCreator = await tr3x.creators(LEASE_LICENSE_ID)
 
-      expect(licenseCreator).to.equal(creator1.address)
+      expect(licenseCreator).to.equal(leaseLicenseCreator.address)
 
       // fetchin the license price
       const licensePrice = await tr3x.prices(LEASE_LICENSE_ID)
@@ -81,9 +86,9 @@ describe("Tr3x", function () {
     })
 
     it("should create an exclusive license", async () => {
-      // kickin off license creation - signin the tx as creator1
+      // kickin off license creation - signin the tx as exclusiveLicenseCreator
       const licenseCreation = tr3x
-        .connect(creator2)
+        .connect(exclusiveLicenseCreator)
         // last param indicates non-fungibility aka isExclusive = true
         .create(EXCLUSIVE_LICENSE_METADATA_CID, EXCLUSIVE_LICENSE_PRICE, true)
 
@@ -92,7 +97,7 @@ describe("Tr3x", function () {
         // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
         .to.emit(tr3x, "TransferSingle")
         .withArgs(
-          creator2.address,
+          exclusiveLicenseCreator.address,
           ZERO_ADDRESS,
           ZERO_ADDRESS,
           EXCLUSIVE_LICENSE_ID,
@@ -105,7 +110,7 @@ describe("Tr3x", function () {
       // fetchin the license creator
       const licenseCreator = await tr3x.creators(EXCLUSIVE_LICENSE_ID)
 
-      expect(licenseCreator).to.equal(creator2.address)
+      expect(licenseCreator).to.equal(exclusiveLicenseCreator.address)
 
       // fetchin the license price
       const licensePrice = await tr3x.prices(EXCLUSIVE_LICENSE_ID)
@@ -115,32 +120,65 @@ describe("Tr3x", function () {
   })
 
   describe("lease license purchases", () => {
-    it("should allow different parties to purchase the same lease license", async () => {})
+    it("should allow different parties to purchase the same lease license", async () => {
+      const purchaser1Price = LEASE_LICENSE_PRICE
+      const purchaser2Price = LEASE_LICENSE_PRICE + 419n
 
-    it("should fail if not paying the minimum price", async () => {})
+      // kickin off a license purchase as purchaser1
+      const licensePurchase1 = tr3x
+        .connect(purchaser1)
+        // purchaser1 is only payin the minimum price
+        .purchase(LEASE_LICENSE_ID, purchaser1Price)
 
-    it("should fail if the license token does not exist", async () => {})
+      // awaitin license creation - also signalled by events
+      await expect(licensePurchase1)
+        // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          purchaser1.address,
+          ZERO_ADDRESS,
+          purchaser1.address,
+          LEASE_LICENSE_ID,
+          1n
+        )
+        // for tr3x a Purchase event MUST be emitted for every license token purchase
+        .to.emit(tr3x, "Purchase")
+        .withArgs(
+          LEASE_LICENSE_ID,
+          purchaser1Price,
+          leaseLicenseCreator.adress,
+          purchaser1.address
+        )
+
+      // TODO 2nd license purchase
+    })
+
+    // it("should fail if not paying the minimum price", async () => {})
+
+    // it("should fail if the license token does not exist", async () => {})
   })
 
-  describe("exclusive license purchases", () => {
-    it("should allow only one party to purchase an exclusive license", async () => {})
+  // describe("exclusive license purchases", () => {
+  //   it("should allow only one party to purchase an exclusive license", async () => {})
 
-    it("should fail if the exclusive license token has already been purchased", async () => {})
+  //   it("should fail if the exclusive license token has already been purchased", async () => {})
 
-    it("should fail if not paying the minimum price", async () => {})
+  //   it("should fail if not paying the minimum price", async () => {})
 
-    it("should fail if the license token does not exist", async () => {})
-  })
+  //   it("should fail if the license token does not exist", async () => {})
+  // })
 
-  describe("license deactivation", () => {
-    it("it should fail for non-creators", async () => {})
+  // describe("license deactivation", () => {
+  //   it("it should fail for non-creators", async () => {})
 
-    it("should disallow purchasing deactivated license tokens", async () => {})
-  })
+  //   it("should disallow purchasing deactivated license tokens", async () => {})
+  // })
 
-  describe("license reactivation", () => {
-    it("it should fail for non-creators", async () => {})
+  // describe("license reactivation", () => {
+  //   it("it should fail for non-creators", async () => {})
 
-    it("should allow purchasing reactivated license tokens", async () => {})
-  })
+  //   it("should allow purchasing reactivated license tokens", async () => {})
+  // })
+
+  // describe license claims TODO
 })
