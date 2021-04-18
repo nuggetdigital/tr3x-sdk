@@ -1,6 +1,8 @@
 {
   "scripts": {
     "test": "hardhat test",
+    "solhint": "./node_modules/.bin/solhint -f tap contracts/tr3x.sol",
+    "solfmt": "./node_modules/.bin/prettier --write contracts/tr3x.sol",
     "solc": "npx hardhat compile",
     "deploy": "npx hardhat run --network moonbase scripts/deploy.js",
     "cockpit": "npx hardhat console --network moonbase",

@@ -785,6 +785,8 @@ contract ERC1155MixedFungible is ERC1155 {
     @dev Mintable customized form of ERC1155 incorporating all tr3x logic.
 */
 contract Tr3x is ERC1155MixedFungible {
+    using SafeMath for uint256;
+
     address owner;
     uint256 nonce;
     mapping(uint256 => address) public creators;
@@ -869,7 +871,7 @@ contract Tr3x is ERC1155MixedFungible {
             // Grant the tokens to the caller
             balances[_id][to] = SafeMath.add(quantity, balances[_id][to]);
 
-            // emit the Transfer/Mint event - the 0x0 source address implies a mint
+            // Emit the Transfer/Mint event - the 0x0 source address implies a mint
             emit TransferSingle(owner, address(0x0), to, _id, quantity);
 
             if (Address.isContract(to)) {
@@ -895,27 +897,38 @@ contract Tr3x is ERC1155MixedFungible {
         external
         activeOnly(_type)
     {
-        // Makin sure the buyer is payin the minimum price at least.
+        // Makin sure the purchaser is payin the minimum price at least.
         require(_price >= prices[_type]);
-
+        console.log("enough price");
+        // Makin sure the purchaser has sufficient TR3X balance.
+        require(_price <= balances[1][msg.sender]);
+        console.log("enough balance");
+        // If we regard this an exclusive right 
         if (isNonFungible(_type)) {
-            // We regard this an exclusive right
-            // and assert that the exclusive right has not been acquired.
+            // The token must not yet have an owner.
             require(nfOwners[_type] == address(0x0));
         }
-        console.log("BOUTO safeTransferFrom(msg.sender, creators[_type], 1, _price, '');");
-        // Payin the STYC price (_type 1 is the native TR3X token).
-        this.safeTransferFrom(msg.sender, creators[_type], 1, _price, "");
-        console.log("just transfered sth from %s to %s", msg.sender, creators[_type]);
+        console.log("no owner");
+        // Withdrawal
+        balances[_type][msg.sender] = balances[_type][msg.sender].sub(_price);
+        console.log("withdrew");
+         // Credit
+         balances[_type][creators[_type]] = balances[_type][msg.sender].add(_price);
+        console.log("acredited");
+        // Emit the Transfer event for the TR3X payment.
+        emit TransferSingle(address(this), msg.sender, creators[_type], 1, _price);
+        
         // Transferin the license token.
+        balances[_type][msg.sender] = SafeMath.add(balances[_type][msg.sender], 1);
+
+        // Separately storing exclusive license token ownerships.
         if (isNonFungible(_type)) {
           nfOwners[_type] = msg.sender;
-        } else {
-         this.safeTransferFrom(address(0x0), msg.sender, _type, 1, "");
         }
 
-        // Emit the Transfer/Mint event - the 0x0 source address implies a mint.
-        emit TransferSingle(msg.sender, address(0x0), msg.sender, _type, 1);
+        // Emit the Transfer/Mint event for the license token.
+        // The zero address implies a mint.
+        emit TransferSingle(address(this), address(0x0), msg.sender, _type, 1);
 
         // Emitin the Purchase event.
         emit Purchase(_type, _price, creators[_type], msg.sender);

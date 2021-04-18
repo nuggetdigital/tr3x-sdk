@@ -39,9 +39,22 @@ describe("Tr3x", function () {
       purchaser2,
       ...more
     ] = await ethers.getSigners()
+
     const Tr3x = await ethers.getContractFactory("Tr3x")
+
     // TODO: find a way to deploy as specific signer
     tr3x = await Tr3x.deploy()
+
+    await tr3x.mintNative(
+      [
+        deployer.address,
+        leaseLicenseCreator.address,
+        exclusiveLicenseCreator.address,
+        purchaser1.address,
+        purchaser2.address
+      ],
+      Array(5).fill(1000000000n)
+    )
   })
 
   describe("contract instantiation", () => {
