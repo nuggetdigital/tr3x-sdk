@@ -1,25 +1,5 @@
 const { expect } = require("chai")
 
-/**
- * takes a big endian hex string number representation and returns both of
- * its endianness variants as simple js bigints.
- * @param {*} bigEndianLicenseIdHexString
- * @returns {{ le: bigint, be: bigint }} big and little endian license ids.
- */
-function xEndianLicenseId(bigEndianLicenseIdHexString) {
-  return {
-    be: BigInt(bigEndianLicenseIdHexString),
-    le: BigInt(
-      "0x" +
-        bigEndianLicenseIdHexString
-          .match(/.{1,2}/g)
-          .slice(1)
-          .reverse()
-          .join("")
-    )
-  }
-}
-
 describe("Tr3x", function () {
   const TR3X = 1
   const ZERO_ADDRESS = "0x" + "0".repeat(40)
@@ -59,8 +39,8 @@ describe("Tr3x", function () {
       const metadataCid = "Qm" + "7".repeat(44)
       const price = 1000000n
       const isExclusive = false
-      // expected outputs
-      leaseLicenseId = xEndianLicenseId("0x0000000000000000000000000000000002")
+      // expected license token id - note the little endianess
+      leaseLicenseId = BigInt("0x0200000000000000000000000000000000")
 
       // kickin off license creation - signin the tx as creator1
       const licenseCreation = tr3x
@@ -75,33 +55,31 @@ describe("Tr3x", function () {
           creator1.address,
           ZERO_ADDRESS,
           ZERO_ADDRESS,
-          leaseLicenseId.le,
+          leaseLicenseId,
           0n
         )
         // following ERC-1155 an URI event SHOULD be emitted for mints
         .to.emit(tr3x, "URI")
-        .withArgs(metadataCid, leaseLicenseId.le)
+        .withArgs(metadataCid, leaseLicenseId)
 
       // fetchin the license creator
-      const licenseCreator = await tr3x.creators(leaseLicenseId.le)
+      const licenseCreator = await tr3x.creators(leaseLicenseId)
 
       expect(licenseCreator).to.equal(creator1.address)
 
       // fetchin the license price
-      const licensePrice = await tr3x.prices(leaseLicenseId.le)
+      const licensePrice = await tr3x.prices(leaseLicenseId)
 
       expect(licensePrice).to.equal(price)
     })
 
-    it("should create an exclusive license", async function () {
+    it.skip("should create an exclusive license", async function () {
       // contract method inputs
       const metadataCid = "Qm" + "5".repeat(44)
       const price = 1000419n
       const isExclusive = true
       // expected outputs
-      exclusiveLicenseId = xEndianLicenseId(
-        "0x0000000000000000000000000000000003"
-      )
+      exclusiveLicenseId = BigInt("0x0300000000000000000000000000000000")
 
       // kickin off license creation - signin the tx as creator1
       const licenseCreation = tr3x
@@ -135,9 +113,7 @@ describe("Tr3x", function () {
     })
   })
 
-  it("should allow different parties to purchase the same lease license", async function () {
-    
-  })
+  it("should allow different parties to purchase the same lease license", async function () {})
 
   // it("should allow only one party to purchase an exclusive license", async function () {
 

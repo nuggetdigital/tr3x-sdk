@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/chiefbiiko/repos/tr3x-ngin/hardhat/contracts/tr3x.sol": {
-      "lastModificationDate": 1618319613022,
-      "contentHash": "f91d414d24a726ccac56a2708839f741",
+      "lastModificationDate": 1618661514052,
+      "contentHash": "a1f45db85f1e0178676571a232cde97c",
       "sourceName": "contracts/tr3x.sol",
       "solcConfig": {
         "version": "0.8.3",
