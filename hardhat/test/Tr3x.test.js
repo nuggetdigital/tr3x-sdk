@@ -6,15 +6,23 @@ const { expect } = require("chai")
  * incremental fashion.
  */
 describe("Tr3x", function () {
+  // TR3X will always be token id 1
   const TR3X = 1
   const ZERO_ADDRESS = "0x" + "0".repeat(40)
+  // mock lease license price
   const LEASE_LICENSE_PRICE = 1000000n
+  // mock lease license metadata cid refing the metadata json doc on ipfs
   const LEASE_LICENSE_METADATA_CID = "Qm" + "7".repeat(44)
+  // mock lease license id
   const LEASE_LICENSE_ID = BigInt("0x0200000000000000000000000000000000")
+  // mock exclusive license price
   const EXCLUSIVE_LICENSE_PRICE = 1000419n
+  // mock exclusive license metadata cid refing the metadata json doc on ipfs
   const EXCLUSIVE_LICENSE_METADATA_CID = "Qm" + "5".repeat(44)
+  // mock exclusive license id - note the non-fungibility bit flag set
   const EXCLUSIVE_LICENSE_ID =
     BigInt("0x0300000000000000000000000000000000") | (1n << 255n)
+  // the test global contract and identities
   let tr3x, deployer, creator1, creator2, purchaser1, purchaser2
 
   before(async () => {
@@ -32,14 +40,14 @@ describe("Tr3x", function () {
   })
 
   describe("contract instantiation", () => {
-    it("should assign the TR3X creator role to the deployer", async function () {
+    it("should assign the TR3X creator role to the deployer", async () => {
       const creatorOfTR3X = await tr3x.creators(TR3X)
       expect(creatorOfTR3X).to.equal(ZERO_ADDRESS)
     })
   })
 
   describe("license creation", () => {
-    it("should create a lease license", async function () {
+    it("should create a lease license", async () => {
       // kickin off lease license creation - signin the tx as creator1
       const licenseCreation = tr3x
         .connect(creator1)
@@ -72,7 +80,7 @@ describe("Tr3x", function () {
       expect(licensePrice).to.equal(LEASE_LICENSE_PRICE)
     })
 
-    it("should create an exclusive license", async function () {
+    it("should create an exclusive license", async () => {
       // kickin off license creation - signin the tx as creator1
       const licenseCreation = tr3x
         .connect(creator2)
@@ -106,10 +114,33 @@ describe("Tr3x", function () {
     })
   })
 
-  // it("should allow different parties to purchase the same lease license", async function () {
-  //   // contract method inputs
-  //   // TODO
-  // })
+  describe("lease license purchases", () => {
+    it("should allow different parties to purchase the same lease license", async () => {})
 
-  // it("should allow only one party to purchase an exclusive license", async function () {})
+    it("should fail if not paying the minimum price", async () => {})
+
+    it("should fail if the license token does not exist", async () => {})
+  })
+
+  describe("exclusive license purchases", () => {
+    it("should allow only one party to purchase an exclusive license", async () => {})
+
+    it("should fail if the exclusive license token has already been purchased", async () => {})
+
+    it("should fail if not paying the minimum price", async () => {})
+
+    it("should fail if the license token does not exist", async () => {})
+  })
+
+  describe("license deactivation", () => {
+    it("it should fail for non-creators", async () => {})
+
+    it("should disallow purchasing deactivated license tokens", async () => {})
+  })
+
+  describe("license reactivation", () => {
+    it("it should fail for non-creators", async () => {})
+
+    it("should allow purchasing reactivated license tokens", async () => {})
+  })
 })
