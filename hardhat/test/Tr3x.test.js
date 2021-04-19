@@ -3,7 +3,8 @@ const { expect } = require("chai")
 /**
  * NOTE: the test suite depends on the order of its test cases as the
  * contract creates license token ids, that we assert() on, in an
- * incremental fashion.
+ * incremental fashion, and we are tracin global balances throughout
+ * the test suite.
  */
 describe("Tr3x", function() {
   // TR3X will always be token id 1
@@ -26,15 +27,31 @@ describe("Tr3x", function() {
   const EXCLUSIVE_LICENSE_ID =
     BigInt("0x0300000000000000000000000000000000") | (1n << 255n)
   // the test global contract and identities
-  let tr3x, deployer, lessor, exclusiveLicenseCreator, purchaser1, purchaser2
+  let tr3x, lessor, exclusiveLicenseCreator, purchaser1, purchaser2
 
   before(async () => {
-    // TODO ;[ deployer ] = await ethers.getSigners()
-
     const Tr3x = await ethers.getContractFactory("Tr3x")
 
     // TODO: find a way to deploy as specific signer
     tr3x = await Tr3x.deploy()
+    ;[
+      lessor,
+      exclusiveLicenseCreator,
+      purchaser1,
+      purchaser2,
+      purchaser3
+    ] = await ethers.getSigners()
+
+    await tr3x.mintNative(
+      [
+        lessor.address,
+        exclusiveLicenseCreator.address,
+        purchaser1.address,
+        purchaser2.address,
+        purchaser3.address
+      ],
+      Array(5).fill(INITIAL_TR3X_BALANCE)
+    )
   })
 
   describe("contract instantiation", () => {
@@ -45,15 +62,6 @@ describe("Tr3x", function() {
   })
 
   describe("license creation", () => {
-    before(async () => {
-      ;[lessor, exclusiveLicenseCreator] = await ethers.getSigners()
-
-      await tr3x.mintNative(
-        [lessor.address, exclusiveLicenseCreator.address],
-        Array(2).fill(INITIAL_TR3X_BALANCE)
-      )
-    })
-
     it("should create a lease license", async () => {
       // kickin off lease license creation - signin the tx as lessor
       const licenseCreation = tr3x
@@ -121,190 +129,197 @@ describe("Tr3x", function() {
     })
   })
 
-  describe("lease license purchases", () => {
-    before(async () => {
-      ;[purchaser1, purchaser2] = await ethers.getSigners()
-
-      await tr3x.mintNative(
-        [purchaser1.address, purchaser2.address],
-        Array(2).fill(INITIAL_TR3X_BALANCE)
-      )
-    })
-
-    it("should allow different parties to purchase the same lease license", async () => {
-      // purchaser1 is only payin the minimum price
-      const purchaser1Price = LEASE_LICENSE_PRICE
-      // purchaser2 is payin more
-      const purchaser2Price = LEASE_LICENSE_PRICE + 419n
-
-      // kickin off a license purchase as purchaser1
-      const licensePurchase1 = tr3x
-        .connect(purchaser1)
-        .purchase(LEASE_LICENSE_ID, purchaser1Price)
-
-      // awaitin license creation
-      await expect(licensePurchase1)
-        // TransferSingle event for the TR3X payment
-        .to.emit(tr3x, "TransferSingle")
-        .withArgs(
-          tr3x.address,
-          purchaser1.address,
-          lessor.address,
-          TR3X,
-          purchaser1Price
-        )
-        // TransferSingle event for the license token transfer
-        .to.emit(tr3x, "TransferSingle")
-        .withArgs(
-          tr3x.address,
-          ZERO_ADDRESS,
-          purchaser1.address,
-          LEASE_LICENSE_ID,
-          1n
-        )
-
-      const purchaser1BalanceTR3X = await tr3x.balanceOf(
-        purchaser1.address,
-        TR3X
-      )
-
-      expect(purchaser1BalanceTR3X).to.equal(
-        INITIAL_TR3X_BALANCE - purchaser1Price
-      )
-
-      let lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
-
-      expect(lessorBalanceTR3X).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
-
-      const purchaser1BalanceLeaseLicenseToken = await tr3x.balanceOf(
-        purchaser1.address,
-        LEASE_LICENSE_ID
-      )
-
-      expect(purchaser1BalanceLeaseLicenseToken).to.equal(1n)
-
-      // kickin off a license purchase as purchaser2
-      const licensePurchase2 = tr3x
-        .connect(purchaser2)
-        .purchase(LEASE_LICENSE_ID, purchaser2Price)
-
-      // awaitin license creation
-      await expect(licensePurchase2)
-        // TransferSingle event for the TR3X payment
-        .to.emit(tr3x, "TransferSingle")
-        .withArgs(
-          tr3x.address,
-          purchaser2.address,
-          lessor.address,
-          TR3X,
-          purchaser2Price
-        )
-        // TransferSingle event for the license token transfer
-        .to.emit(tr3x, "TransferSingle")
-        .withArgs(
-          tr3x.address,
-          ZERO_ADDRESS,
-          purchaser2.address,
-          LEASE_LICENSE_ID,
-          1n
-        )
-
-      const purchaser2BalanceTR3X = await tr3x.balanceOf(
-        purchaser2.address,
-        TR3X
-      )
-
-      expect(purchaser2BalanceTR3X).to.equal(
-        INITIAL_TR3X_BALANCE - purchaser2Price
-      )
-
-      lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
-
-      expect(lessorBalanceTR3X).to.equal(
-        INITIAL_TR3X_BALANCE + purchaser1Price + purchaser2Price
-      )
-
-      const purchaser2BalanceLeaseLicenseToken = await tr3x.balanceOf(
-        purchaser2.address,
-        LEASE_LICENSE_ID
-      )
-
-      expect(purchaser2BalanceLeaseLicenseToken).to.equal(1n)
-    })
-
-    it("should fail if not paying the minimum price", async () => {
-      const licensePurchase = tr3x
-        .connect(purchaser1)
-        .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE - 1n)
-
-      await expect(licensePurchase).to.be.revertedWith("price too low")
-    })
-
+  describe("license purchases", () => {
     it("should fail if the license token does not exist", async () => {
       const licensePurchase = tr3x.connect(purchaser1).purchase(419n, 1n)
 
       await expect(licensePurchase).to.be.revertedWith("token does not exist")
     })
+
+    describe("lease license purchases", () => {
+      it("should fail if not paying the minimum price", async () => {
+        const licensePurchase = tr3x
+          .connect(purchaser1)
+          .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE - 1n)
+
+        await expect(licensePurchase).to.be.revertedWith("price too low")
+      })
+
+      it("should allow different parties to purchase the same lease license", async () => {
+        // purchaser1 is only payin the minimum price
+        const purchaser1Price = LEASE_LICENSE_PRICE
+        // purchaser2 is payin more
+        const purchaser2Price = LEASE_LICENSE_PRICE + 419n
+
+        // kickin off a license purchase as purchaser1
+        const licensePurchase1 = tr3x
+          .connect(purchaser1)
+          .purchase(LEASE_LICENSE_ID, purchaser1Price)
+
+        // awaitin license creation
+        await expect(licensePurchase1)
+          // TransferSingle event for the TR3X payment
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            purchaser1.address,
+            lessor.address,
+            TR3X,
+            purchaser1Price
+          )
+          // TransferSingle event for the license token transfer
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            ZERO_ADDRESS,
+            purchaser1.address,
+            LEASE_LICENSE_ID,
+            1n
+          )
+
+        const purchaser1TR3XBalance = await tr3x.balanceOf(
+          purchaser1.address,
+          TR3X
+        )
+
+        expect(purchaser1TR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE - purchaser1Price
+        )
+
+        let lessorTR3XBalance = await tr3x.balanceOf(lessor.address, TR3X)
+
+        expect(lessorTR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE + purchaser1Price
+        )
+
+        const purchaser1LeaseLicenseTokenBalance = await tr3x.balanceOf(
+          purchaser1.address,
+          LEASE_LICENSE_ID
+        )
+
+        expect(purchaser1LeaseLicenseTokenBalance).to.equal(1n)
+
+        // kickin off a license purchase as purchaser2
+        const licensePurchase2 = tr3x
+          .connect(purchaser2)
+          .purchase(LEASE_LICENSE_ID, purchaser2Price)
+
+        // awaitin license creation
+        await expect(licensePurchase2)
+          // TransferSingle event for the TR3X payment
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            purchaser2.address,
+            lessor.address,
+            TR3X,
+            purchaser2Price
+          )
+          // TransferSingle event for the license token transfer
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            ZERO_ADDRESS,
+            purchaser2.address,
+            LEASE_LICENSE_ID,
+            1n
+          )
+
+        const purchaser2TR3XBalance = await tr3x.balanceOf(
+          purchaser2.address,
+          TR3X
+        )
+
+        expect(purchaser2TR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE - purchaser2Price
+        )
+
+        lessorTR3XBalance = await tr3x.balanceOf(lessor.address, TR3X)
+
+        expect(lessorTR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE + purchaser1Price + purchaser2Price
+        )
+
+        const purchaser2LeaseLicenseTokenBalance = await tr3x.balanceOf(
+          purchaser2.address,
+          LEASE_LICENSE_ID
+        )
+
+        expect(purchaser2LeaseLicenseTokenBalance).to.equal(1n)
+      })
+    })
+
+    describe("exclusive license purchases", () => {
+      it("should fail if not paying the minimum price", async () => {
+        const licensePurchase = tr3x
+          .connect(purchaser1)
+          .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE - 1n)
+
+        await expect(licensePurchase).to.be.revertedWith("price too low")
+      })
+
+      it("should allow the first one interested to purchase an exclusive license", async () => {
+        // the EXCLUSIVE_LICENSE_ID has not been bought by anyone yet
+        const licensePurchase = tr3x
+          .connect(purchaser3)
+          .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE)
+
+        // awaitin license creation
+        await expect(licensePurchase)
+          // TransferSingle event for the TR3X payment
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            purchaser3.address,
+            exclusiveLicenseCreator.address,
+            TR3X,
+            EXCLUSIVE_LICENSE_PRICE
+          )
+          // TransferSingle event for the license token transfer
+          .to.emit(tr3x, "TransferSingle")
+          .withArgs(
+            tr3x.address,
+            ZERO_ADDRESS,
+            purchaser3.address,
+            EXCLUSIVE_LICENSE_ID,
+            1n
+          )
+
+        const purchaser3TR3XBalance = await tr3x.balanceOf(
+          purchaser3.address,
+          TR3X
+        )
+
+        expect(purchaser3TR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE - EXCLUSIVE_LICENSE_PRICE
+        )
+
+        let exclusiveLicenseCreatorTR3XBalance = await tr3x.balanceOf(
+          exclusiveLicenseCreator.address,
+          TR3X
+        )
+
+        expect(exclusiveLicenseCreatorTR3XBalance).to.equal(
+          INITIAL_TR3X_BALANCE + EXCLUSIVE_LICENSE_PRICE
+        )
+
+        const purchaser3ExclusiveLicenseTokenBalance = await tr3x.balanceOf(
+          purchaser3.address,
+          EXCLUSIVE_LICENSE_ID
+        )
+
+        expect(purchaser3ExclusiveLicenseTokenBalance).to.equal(1n)
+      })
+
+      it("should fail if the exclusive license token has already been purchased", async () => {
+        const licensePurchase = tr3x
+          .connect(purchaser1)
+          .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE)
+
+        await expect(licensePurchase).to.be.revertedWith("already acquired")
+      })
+    })
   })
-
-  //   describe("exclusive license purchases", () => {
-  //     it("should allow only one party to purchase an exclusive license", async () => {
-  //       //
-  //  // kickin off a license purchase as purchaser1
-  //       const licensePurchase = tr3x
-  //         .connect(purchaser1)
-  //         .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE)
-
-  //       // awaitin license creation
-  //       await expect(licensePurchase)
-  //         // TransferSingle event for the TR3X payment
-  //         .to.emit(tr3x, "TransferSingle")
-  //         .withArgs(
-  //           tr3x.address,
-  //           purchaser1.address,
-  //           exclusiveLicenseCreator.address,
-  //           TR3X,
-  //           EXCLUSIVE_LICENSE_PRICE
-  //         )
-  //         // TransferSingle event for the license token transfer
-  //         .to.emit(tr3x, "TransferSingle")
-  //         .withArgs(
-  //           tr3x.address,
-  //           ZERO_ADDRESS,
-  //           purchaser1.address,
-  //           LEASE_LICENSE_ID,
-  //           1n
-  //         )
-
-  //       const purchaser1BalanceTR3X = await tr3x.balanceOf(
-  //         purchaser1.address,
-  //         TR3X
-  //       )
-
-  //       expect(purchaser1BalanceTR3X).to.equal(
-  //         INITIAL_TR3X_BALANCE - EXCLUSIVE_LICENSE_PRICE
-  //       )
-
-  //       let lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
-
-  //       expect(lessorBalanceTR3X).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
-
-  //       const purchaser1BalanceLeaseLicenseToken = await tr3x.balanceOf(
-  //         purchaser1.address,
-  //         LEASE_LICENSE_ID
-  //       )
-
-  //       expect(purchaser1BalanceLeaseLicenseToken).to.equal(1n)
-
-  //       //
-  //     })
-
-  //   it("should fail if the exclusive license token has already been purchased", async () => {})
-
-  //   it("should fail if not paying the minimum price", async () => {})
-
-  //   it("should fail if the license token does not exist", async () => {})
-  // })
 
   // describe("license deactivation", () => {
   //   it("it should fail for non-creators", async () => {})
