@@ -824,7 +824,7 @@ contract Tr3x is ERC1155MixedFungible {
         CidId[] memory list = new CidId[](sum);
 
         // stitchin together the listin
-        for (uint256 i = 0; i < all.length; i++) {
+        for (uint256 i = 0; i < sum; i++) {
             if (nfOwners[all[i].id] == address(0x0)) {
                 list[i] = all[i];
             }
