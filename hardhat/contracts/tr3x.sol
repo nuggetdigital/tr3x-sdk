@@ -794,6 +794,7 @@ contract Tr3x is ERC1155MixedFungible {
     uint256 nonce;
     mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public prices;
+    mapping(uint256 => bool) public disabled;
     CidId[] public all;
 
     modifier creatorOnly(uint256 _id) {
@@ -806,31 +807,43 @@ contract Tr3x is ERC1155MixedFungible {
         _;
     }
 
+    modifier purchasableOnly(uint256 _type) {
+        require(!disabled[_type], "disabled offering");
+        _;
+    }
+
+    /**
+        @dev MUST emit when a license token's is purchasability is disabled or reenabled (absense of an event assumes enabled).
+    */
+    event Purchasability(uint256 _type, bool _enabled);
+
     /**
      * @notice Lists current license token offers. Excluding acquired exclusives.
      * @return An array of license token ids.
      */
     function currentOffers() public view returns (CidId[] memory) {
-        uint256 sum = 0;
+        uint256 sum_ = 0;
 
-        // reducin to the current offer count
+        // reducin to the current offer sum
         for (uint256 i = 0; i < all.length; i++) {
-            if (nfOwners[all[i].id] == address(0x0)) {
-                // not a lease or an unacquired exclusive
-                sum += 1;
+            uint256 id = all[i].id;
+            if (!disabled[id] && nfOwners[id] == address(0x0)) {
+                // active & a lease or an unacquired exclusive
+                sum_ += 1;
             }
         }
 
-        CidId[] memory list = new CidId[](sum);
+        CidId[] memory offers_ = new CidId[](sum_);
 
         // stitchin together the listin
-        for (uint256 i = 0; i < sum; i++) {
-            if (nfOwners[all[i].id] == address(0x0)) {
-                list[i] = all[i];
+        for (uint256 i = 0; i < sum_; i++) {
+            uint256 id = all[i].id;
+            if (!disabled[id] && nfOwners[id] == address(0x0)) {
+                offers_[i] = all[i];
             }
         }
 
-        return list;
+        return offers_;
     }
 
     /**
@@ -923,7 +936,10 @@ contract Tr3x is ERC1155MixedFungible {
      * @param _type Item identifier. May be a base type or an actual _id.
      * @param _price STYC price being paid.
      */
-    function purchase(uint256 _type, uint256 _price) external {
+    function purchase(uint256 _type, uint256 _price)
+        external
+        purchasableOnly(_type)
+    {
         // Makin sure the license token actually exists
         require(creators[_type] != address(0x0), "token does not exist");
 
@@ -982,5 +998,25 @@ contract Tr3x is ERC1155MixedFungible {
                 ""
             );
         }
+    }
+
+    /**
+     * @notice Disables an offer so that the corresponding item can not be purchased.
+     * @param _type Item identifier. May be a base type or an actual _id.
+     */
+    function disable(uint256 _type) external creatorOnly(_type) {
+        disabled[_type] = true;
+
+        emit Purchasability(_type, false);
+    }
+
+    /**
+     * @notice Eenables an offer so that the corresponding item can be purchased again.
+     * @param _type Item identifier. May be a base type or an actual _id.
+     */
+    function enable(uint256 _type) external creatorOnly(_type) {
+        disabled[_type] = false;
+
+        emit Purchasability(_type, true);
     }
 }

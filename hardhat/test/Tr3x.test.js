@@ -346,5 +346,105 @@ describe("Tr3x", function() {
     })
   })
 
+  describe("license deactivation", () => {
+    // NOTE: de/reactivation of leases/exclusives is absolutely identical..
+    // ...thus we test with a lease only
+    it("it should fail for non-creators", async () => {
+      const licenseDeactivation = tr3x
+        .connect(purchaser1)
+        .disable(LEASE_LICENSE_ID)
+
+      await expect(licenseDeactivation).to.be.revertedWith(
+        "creator only access"
+      )
+    })
+
+    it("it should allow creators to deactivate license offers", async () => {
+      const licenseDeactivation = tr3x.connect(lessor).disable(LEASE_LICENSE_ID)
+
+      await expect(licenseDeactivation)
+        .to.emit(tr3x, "Purchasability")
+        .withArgs(LEASE_LICENSE_ID, false)
+
+      const disabled = await tr3x.disabled(LEASE_LICENSE_ID)
+
+      expect(disabled).to.be.true
+    })
+
+    it("should disallow purchasing deactivated license tokens", async () => {
+      const licensePurchase = tr3x
+        .connect(purchaser3)
+        .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE)
+
+      await expect(licensePurchase).to.be.revertedWith("disabled offering")
+    })
+
+    it("should not list a deactivated license token under offers", async () => {
+      const expected = []
+
+      const offers = await tr3x.currentOffers()
+
+      expect(offers).to.deep.equal(expected)
+    })
+  })
+
+  describe("license reactivation", () => {
+    it("it should fail for non-creators", async () => {
+      const licenseDeactivation = tr3x
+        .connect(purchaser1)
+        .enable(LEASE_LICENSE_ID)
+
+      await expect(licenseDeactivation).to.be.revertedWith(
+        "creator only access"
+      )
+    })
+
+    it("it should allow creators to reactivate license offers", async () => {
+      const licenseReactivation = tr3x.connect(lessor).enable(LEASE_LICENSE_ID)
+
+      await expect(licenseReactivation)
+        .to.emit(tr3x, "Purchasability")
+        .withArgs(LEASE_LICENSE_ID, true)
+    })
+
+    it("should allow purchasing reactivated license tokens", async () => {
+      // kickin off a license purchase as purchaser3
+      const licensePurchase = tr3x
+        .connect(purchaser3)
+        .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE)
+
+      // awaitin license creation
+      await expect(licensePurchase)
+        // TransferSingle event for the TR3X payment
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          purchaser3.address,
+          lessor.address,
+          TR3X,
+          LEASE_LICENSE_PRICE
+        )
+        // TransferSingle event for the license token transfer
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          ZERO_ADDRESS,
+          purchaser3.address,
+          LEASE_LICENSE_ID,
+          1n
+        )
+    })
+
+    it("should list a reactivated license token under current offers", async () => {
+      const expected = [
+        [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+      ]
+
+      const offers = await tr3x.currentOffers()
+
+      expect(offers).to.deep.equal(expected)
+    })
+  })
+
   // TODO: test&impl contract getter servin all (tokenId,cid) tuples for a given address
 })
