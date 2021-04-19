@@ -183,7 +183,55 @@ describe("Tr3x", function() {
 
       expect(purchaser1BalanceLeaseLicenseToken).to.equal(1n)
 
-      // TODO 2nd license purchase
+      // kickin off a license purchase as purchaser2
+      const licensePurchase2 = tr3x
+        .connect(purchaser2)
+        // purchaser1 is only payin the minimum price
+        .purchase(LEASE_LICENSE_ID, purchaser2Price)
+
+      // awaitin license creation - also signalled by events
+      await expect(licensePurchase2)
+        // TransferSingle event for the TR3X payment
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          purchaser2.address,
+          lessor.address,
+          TR3X,
+          purchaser2Price
+        )
+        // TransferSingle event for the license token transfer
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          ZERO_ADDRESS,
+          purchaser2.address,
+          LEASE_LICENSE_ID,
+          1n
+        )
+
+      // fetchin the post purchase lessee and lessor balances
+      const purchaser2BalanceTR3X = await tr3x.balanceOf(
+        purchaser2.address,
+        TR3X
+      )
+
+      expect(purchaser2BalanceTR3X).to.equal(
+        INITIAL_TR3X_BALANCE - purchaser2Price
+      )
+
+      const lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
+
+      expect(lessorBalanceTR3X).to.equal(
+        INITIAL_TR3X_BALANCE + purchaser1Price + purchaser2Price
+      )
+
+      const purchaser2BalanceLeaseLicenseToken = await tr3x.balanceOf(
+        purchaser2.address,
+        LEASE_LICENSE_ID
+      )
+
+      expect(purchaser2BalanceLeaseLicenseToken).to.equal(1n)
     })
 
     // it("should fail if not paying the minimum price", async () => {})
