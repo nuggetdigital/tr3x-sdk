@@ -57,6 +57,7 @@ describe("Tr3x", function() {
   describe("contract instantiation", () => {
     it("should assign the TR3X creator role to the deployer", async () => {
       const creatorOfTR3X = await tr3x.creators(TR3X)
+
       expect(creatorOfTR3X).to.equal(ZERO_ADDRESS)
     })
   })
@@ -126,6 +127,16 @@ describe("Tr3x", function() {
       const licensePrice = await tr3x.prices(EXCLUSIVE_LICENSE_ID)
 
       expect(licensePrice).to.equal(EXCLUSIVE_LICENSE_PRICE)
+    })
+
+    it("should list all current offers incl. an exclusive", async () => {
+      const expected = [LEASE_LICENSE_ID, EXCLUSIVE_LICENSE_ID].map(
+        ethers.BigNumber.from
+      )
+
+      const offers = await tr3x.currentOffers()
+
+      expect(offers).to.deep.equal(expected)
     })
   })
 
@@ -317,6 +328,14 @@ describe("Tr3x", function() {
           .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE)
 
         await expect(licensePurchase).to.be.revertedWith("already acquired")
+      })
+
+      it("should not list an acquired exclusive license token under current offers", async () => {
+        const expected = [LEASE_LICENSE_ID].map(ethers.BigNumber.from)
+
+        const offers = await tr3x.currentOffers()
+
+        expect(offers).to.deep.equal(expected)
       })
     })
   })
