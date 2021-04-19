@@ -789,10 +789,6 @@ contract Tr3x is ERC1155MixedFungible {
     uint256 nonce;
     mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public prices;
-    mapping(uint256 => bool) public inactive;
-
-    mapping(uint256 => string) public cids;
-    uint256[] public all;
 
     modifier creatorOnly(uint256 _id) {
         require(creators[_id] == msg.sender, "creator only access");
@@ -802,21 +798,6 @@ contract Tr3x is ERC1155MixedFungible {
     modifier ownerOnly() {
         require(msg.sender == owner, "owner only access");
         _;
-    }
-
-    modifier activeOnly(uint256 _type) {
-        require(!inactive[_type], "inactive offering");
-        _;
-    }
-
-    function currentOffers() public view {
-      string[] memory offers;
-      for (uint i=0; i<all.length; i++) {
-          uint256 cur = all[i];
-        if (!inactive[cur] && nfOwners[cur] == address(0x0)) {
-          offers.push(cur);
-        }
-      }
     }
 
     /**
@@ -831,6 +812,41 @@ contract Tr3x is ERC1155MixedFungible {
 
         // Restrict native token admin to owner.
         creators[_type] = owner;
+    }
+
+    /**
+     * @notice Mints fungible native tokens. Only available to the owner.
+     * @param _to Recipients that will receive TR3X as specified in _quantities.
+     * @param _quantities Item quantities to transfer to each corresponding recipient.
+     */
+    function mintNative(address[] calldata _to, uint256[] calldata _quantities)
+        external
+        ownerOnly()
+    {
+        // TR3X token id
+        uint256 _id = 1;
+
+        for (uint256 i = 0; i < _to.length; ++i) {
+            address to = _to[i];
+            uint256 quantity = _quantities[i];
+
+            // Grant the tokens to the caller
+            balances[_id][to] = SafeMath.add(quantity, balances[_id][to]);
+
+            // Emit the Transfer/Mint event - the 0x0 source address implies a mint
+            emit TransferSingle(owner, address(0x0), to, _id, quantity);
+
+            if (Address.isContract(to)) {
+                _doSafeTransferAcceptanceCheck(
+                    owner,
+                    owner,
+                    to,
+                    _id,
+                    quantity,
+                    ""
+                );
+            }
+        }
     }
 
     /**
@@ -858,12 +874,6 @@ contract Tr3x is ERC1155MixedFungible {
         // Settin the minimum SLYC price for this piece of art.
         prices[_type] = _price;
 
-        // Storin the id => cid mapping
-        cids[_type] = _uri;
-
-        // Storin this id in our all collection
-        all.push(_type);
-
         // Emit a Transfer event with Create semantic to help with discovery.
         emit TransferSingle(msg.sender, address(0x0), address(0x0), _type, 0);
 
@@ -873,49 +883,11 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     /**
-     * @notice Mints fungible native tokens. Only available to the owner.
-     * @param _to Recipients that will receive currency as specified in _quantities.
-     * @param _quantities Item quantities to transfer to each corresponding recipient.
-     */
-    function mintNative(address[] calldata _to, uint256[] calldata _quantities)
-        external
-        ownerOnly()
-    {
-        uint256 _id = 1;
-
-        for (uint256 i = 0; i < _to.length; ++i) {
-            address to = _to[i];
-            uint256 quantity = _quantities[i];
-
-            // Grant the tokens to the caller
-            balances[_id][to] = SafeMath.add(quantity, balances[_id][to]);
-
-            // Emit the Transfer/Mint event - the 0x0 source address implies a mint
-            emit TransferSingle(owner, address(0x0), to, _id, quantity);
-
-            if (Address.isContract(to)) {
-                _doSafeTransferAcceptanceCheck(
-                    owner,
-                    owner,
-                    to,
-                    _id,
-                    quantity,
-                    ""
-                );
-            }
-        }
-    }
-
-    /**
      * @notice Purchases an item (lease or exclusive) from a creator.
-     * Fails in case the item is inactive.
      * @param _type Item identifier. May be a base type or an actual _id.
      * @param _price STYC price being paid.
      */
-    function purchase(uint256 _type, uint256 _price)
-        external
-        activeOnly(_type)
-    {
+    function purchase(uint256 _type, uint256 _price) external {
         // Makin sure the license token actually exists
         require(creators[_type] != address(0x0), "token does not exist");
 
@@ -974,21 +946,5 @@ contract Tr3x is ERC1155MixedFungible {
                 ""
             );
         }
-    }
-
-    /**
-     * @notice Deactivates an offer so that the corresponding item can not be purchased.
-     * @param _type Item identifier. May be a base type or an actual _id.
-     */
-    function deactivate(uint256 _type) external creatorOnly(_type) {
-        inactive[_type] = true;
-    }
-
-    /**
-     * @notice Reactivates an offer so that the corresponding item can not be purchased.
-     * @param _type Item identifier. May be a base type or an actual _id.
-     */
-    function reactivate(uint256 _type) external creatorOnly(_type) {
-        inactive[_type] = false;
     }
 }
