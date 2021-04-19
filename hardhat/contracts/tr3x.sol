@@ -785,8 +785,6 @@ contract ERC1155MixedFungible is ERC1155 {
     @dev Mintable customized form of ERC1155 incorporating all tr3x logic.
 */
 contract Tr3x is ERC1155MixedFungible {
-    using SafeMath for uint256;
-
     address owner;
     uint256 nonce;
     mapping(uint256 => address) public creators;
@@ -808,8 +806,6 @@ contract Tr3x is ERC1155MixedFungible {
         _;
     }
 
-    event Purchase(uint256 _type, uint256 _price, address _from, address _to);
-
     /**
      * @notice Instantiates the tr3x contract.
      * Creates the native fungible token of _type 1.
@@ -825,12 +821,16 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     /**
-     * @notice Creates a new (non-)fungible token type.    
+     * @notice Creates a new (non-)fungible token type.
      * @param _uri Content identifier of the metadata JSON doc stored on IPFS.
      * @param _price Minimum price as STYC amount.
      * @param _isNF Whether the token is non-fungible aka an exclusive.
      */
-    function create(string calldata _uri, uint256 _price, bool _isNF) external {
+    function create(
+        string calldata _uri,
+        uint256 _price,
+        bool _isNF
+    ) external {
         // Store the type in the upper 128 bits
         uint256 _type = (++nonce << 128);
 
@@ -858,10 +858,10 @@ contract Tr3x is ERC1155MixedFungible {
      * @param _to Recipients that will receive currency as specified in _quantities.
      * @param _quantities Item quantities to transfer to each corresponding recipient.
      */
-    function mintNative(
-        address[] calldata _to,
-        uint256[] calldata _quantities
-    ) external ownerOnly() {
+    function mintNative(address[] calldata _to, uint256[] calldata _quantities)
+        external
+        ownerOnly()
+    {
         uint256 _id = 1;
 
         for (uint256 i = 0; i < _to.length; ++i) {
@@ -899,50 +899,59 @@ contract Tr3x is ERC1155MixedFungible {
     {
         // Makin sure the purchaser is payin the minimum price at least.
         require(_price >= prices[_type]);
-        console.log("enough price");
+
         // Makin sure the purchaser has sufficient TR3X balance.
         require(_price <= balances[1][msg.sender]);
-        console.log("enough balance");
-        // If we regard this an exclusive right 
+
+        // If we regard this an exclusive right
         if (isNonFungible(_type)) {
             // The token must not yet have an owner.
             require(nfOwners[_type] == address(0x0));
         }
-        console.log("no owner");
+
         // Withdrawal
-        balances[_type][msg.sender] = balances[_type][msg.sender].sub(_price);
-        console.log("withdrew");
-         // Credit
-         balances[_type][creators[_type]] = balances[_type][msg.sender].add(_price);
-        console.log("acredited");
+        balances[1][msg.sender] = SafeMath.sub(balances[1][msg.sender], _price);
+
+        // Credit
+        balances[1][creators[_type]] = SafeMath.add(
+            balances[1][creators[_type]],
+            _price
+        );
+
         // Emit the Transfer event for the TR3X payment.
-        emit TransferSingle(address(this), msg.sender, creators[_type], 1, _price);
-        
+        emit TransferSingle(
+            address(this),
+            msg.sender,
+            creators[_type],
+            1,
+            _price
+        );
+
         // Transferin the license token.
-        balances[_type][msg.sender] = SafeMath.add(balances[_type][msg.sender], 1);
+        balances[_type][msg.sender] = SafeMath.add(
+            balances[_type][msg.sender],
+            1
+        );
 
         // Separately storing exclusive license token ownerships.
         if (isNonFungible(_type)) {
-          nfOwners[_type] = msg.sender;
+            nfOwners[_type] = msg.sender;
         }
 
         // Emit the Transfer/Mint event for the license token.
         // The zero address implies a mint.
         emit TransferSingle(address(this), address(0x0), msg.sender, _type, 1);
 
-        // Emitin the Purchase event.
-        emit Purchase(_type, _price, creators[_type], msg.sender);
-
-            if (Address.isContract(msg.sender)) {
-                _doSafeTransferAcceptanceCheck(
-                    msg.sender,
-                   address(0x0),
-                    msg.sender,
-                    _type,
-                    1,
-                    ""
-                );
-            }
+        if (Address.isContract(msg.sender)) {
+            _doSafeTransferAcceptanceCheck(
+                msg.sender,
+                address(0x0),
+                msg.sender,
+                _type,
+                1,
+                ""
+            );
+        }
     }
 
     /**

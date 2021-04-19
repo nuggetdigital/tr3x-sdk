@@ -5,7 +5,7 @@ const { expect } = require("chai")
  * contract creates license token ids, that we assert() on, in an
  * incremental fashion.
  */
-describe("Tr3x", function () {
+describe("Tr3x", function() {
   // TR3X will always be token id 1
   const TR3X = 1
   const ZERO_ADDRESS = "0x" + "0".repeat(40)
@@ -145,23 +145,26 @@ describe("Tr3x", function () {
 
       // awaitin license creation - also signalled by events
       await expect(licensePurchase1)
-        // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
+        // TransferSingle event for the TR3X payment
         .to.emit(tr3x, "TransferSingle")
         .withArgs(
+          tr3x.address,
           purchaser1.address,
+          leaseLicenseCreator.address,
+          1n,
+          purchaser1Price
+        )
+        // TransferSingle event for the license token transfer
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
           ZERO_ADDRESS,
           purchaser1.address,
           LEASE_LICENSE_ID,
           1n
         )
-        // for tr3x a Purchase event MUST be emitted for every license token purchase
-        .to.emit(tr3x, "Purchase")
-        .withArgs(
-          LEASE_LICENSE_ID,
-          purchaser1Price,
-          leaseLicenseCreator.adress,
-          purchaser1.address
-        )
+
+      // TODO assert license balance for purchaser^1 is 1
 
       // TODO 2nd license purchase
     })
