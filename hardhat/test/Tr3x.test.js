@@ -8,6 +8,9 @@ const { expect } = require("chai")
 describe("Tr3x", function() {
   // TR3X will always be token id 1
   const TR3X = 1
+  // what we mint to every wallet before testing
+  const INITIAL_TR3X_BALANCE = 1000000000n
+  // 🕳️
   const ZERO_ADDRESS = "0x" + "0".repeat(40)
   // mock lease license price
   const LEASE_LICENSE_PRICE = 1000000n
@@ -23,17 +26,12 @@ describe("Tr3x", function() {
   const EXCLUSIVE_LICENSE_ID =
     BigInt("0x0300000000000000000000000000000000") | (1n << 255n)
   // the test global contract and identities
-  let tr3x,
-    deployer,
-    leaseLicenseCreator,
-    exclusiveLicenseCreator,
-    purchaser1,
-    purchaser2
+  let tr3x, deployer, lessor, exclusiveLicenseCreator, purchaser1, purchaser2
 
   before(async () => {
     ;[
       deployer,
-      leaseLicenseCreator,
+      lessor,
       exclusiveLicenseCreator,
       purchaser1,
       purchaser2,
@@ -48,12 +46,12 @@ describe("Tr3x", function() {
     await tr3x.mintNative(
       [
         deployer.address,
-        leaseLicenseCreator.address,
+        lessor.address,
         exclusiveLicenseCreator.address,
         purchaser1.address,
         purchaser2.address
       ],
-      Array(5).fill(1000000000n)
+      Array(5).fill(INITIAL_TR3X_BALANCE)
     )
   })
 
@@ -66,9 +64,9 @@ describe("Tr3x", function() {
 
   describe("license creation", () => {
     it("should create a lease license", async () => {
-      // kickin off lease license creation - signin the tx as leaseLicenseCreator
+      // kickin off lease license creation - signin the tx as lessor
       const licenseCreation = tr3x
-        .connect(leaseLicenseCreator)
+        .connect(lessor)
         // last param indicates non-fungibility aka isExclusive = false
         .create(LEASE_LICENSE_METADATA_CID, LEASE_LICENSE_PRICE, false)
 
@@ -77,7 +75,7 @@ describe("Tr3x", function() {
         // TransferSingle MUST be emitted following ERC-1155 Safe Transfer Rules
         .to.emit(tr3x, "TransferSingle")
         .withArgs(
-          leaseLicenseCreator.address,
+          lessor.address,
           ZERO_ADDRESS,
           ZERO_ADDRESS,
           LEASE_LICENSE_ID,
@@ -90,7 +88,7 @@ describe("Tr3x", function() {
       // fetchin the license creator
       const licenseCreator = await tr3x.creators(LEASE_LICENSE_ID)
 
-      expect(licenseCreator).to.equal(leaseLicenseCreator.address)
+      expect(licenseCreator).to.equal(lessor.address)
 
       // fetchin the license price
       const licensePrice = await tr3x.prices(LEASE_LICENSE_ID)
@@ -150,8 +148,8 @@ describe("Tr3x", function() {
         .withArgs(
           tr3x.address,
           purchaser1.address,
-          leaseLicenseCreator.address,
-          1n,
+          lessor.address,
+          TR3X,
           purchaser1Price
         )
         // TransferSingle event for the license token transfer
@@ -164,7 +162,14 @@ describe("Tr3x", function() {
           1n
         )
 
-      // TODO assert license balance for purchaser^1 is 1
+      // fetchin the post purchase lessee and lessor balances
+      const purchaser1Balance = await tr3x.balanceOf(purchaser1.address, TR3X)
+
+      expect(purchaser1Balance).to.equal(INITIAL_TR3X_BALANCE - purchaser1Price)
+
+      const lessorBalance = await tr3x.balanceOf(lessor.address, TR3X)
+
+      expect(lessorBalance).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
 
       // TODO 2nd license purchase
     })
