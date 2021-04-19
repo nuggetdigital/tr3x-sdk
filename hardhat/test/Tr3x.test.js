@@ -3,7 +3,7 @@ const { expect } = require("chai")
 /**
  * NOTE: the test suite depends on the order of its test cases as the
  * contract creates license token ids, that we assert() on, in an
- * incremental fashion, and we are tracin global balances throughout
+ * incremental fashion, and we are tracin **global** balances throughout
  * the test suite.
  */
 describe("Tr3x", function() {
@@ -321,17 +321,74 @@ describe("Tr3x", function() {
     })
   })
 
-  // describe("license deactivation", () => {
-  //   it("it should fail for non-creators", async () => {})
+  describe("license deactivation", () => {
+    // NOTE: de/reactivation of leases/exclusives is absolutely identical..
+    // ...thus we test with a lease only
+    it("it should fail for non-creators", async () => {
+      const licenseDeactivation = tr3x
+        .connect(purchaser1)
+        .deactivate(LEASE_LICENSE_ID)
 
-  //   it("should disallow purchasing deactivated license tokens", async () => {})
-  // })
+      await expect(licenseDeactivation).to.be.revertedWith(
+        "creator only access"
+      )
+    })
 
-  // describe("license reactivation", () => {
-  //   it("it should fail for non-creators", async () => {})
+    it("it should allow creators to deactivate license offers", async () => {
+      await tr3x.connect(lessor).deactivate(LEASE_LICENSE_ID)
+    })
 
-  //   it("should allow purchasing reactivated license tokens", async () => {})
-  // })
+    it("should disallow purchasing deactivated license tokens", async () => {
+      const licensePurchase = tr3x
+        .connect(purchaser3)
+        .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE)
+
+      await expect(licensePurchase).to.be.revertedWith("inactive offering")
+    })
+  })
+
+  describe("license reactivation", () => {
+    it("it should fail for non-creators", async () => {
+      const licenseDeactivation = tr3x
+        .connect(purchaser1)
+        .reactivate(LEASE_LICENSE_ID)
+
+      await expect(licenseDeactivation)
+        .to.be.revertedWith("creator only access")
+    })
+
+    it("it should allow creators to reactivate license offers", async () => {
+      await tr3x.connect(lessor).reactivate(LEASE_LICENSE_ID)
+    })
+
+    it("should allow purchasing reactivated license tokens", async () => {
+      // kickin off a license purchase as purchaser3
+      const licensePurchase = tr3x
+        .connect(purchaser3)
+        .purchase(LEASE_LICENSE_ID, LEASE_LICENSE_PRICE)
+
+      // awaitin license creation
+      await expect(licensePurchase)
+        // TransferSingle event for the TR3X payment
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          purchaser3.address,
+          lessor.address,
+          TR3X,
+          LEASE_LICENSE_PRICE
+        )
+        // TransferSingle event for the license token transfer
+        .to.emit(tr3x, "TransferSingle")
+        .withArgs(
+          tr3x.address,
+          ZERO_ADDRESS,
+          purchaser3.address,
+          LEASE_LICENSE_ID,
+          1n
+        )
+    })
+  })
 
   // TODO: test&impl contract getter servin active license offers (their cid s )!
   // TODO: test&impl contract getter servin all (tokenId,cid) tuples for a given address
