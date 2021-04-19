@@ -333,5 +333,6 @@ describe("Tr3x", function() {
   //   it("should allow purchasing reactivated license tokens", async () => {})
   // })
 
-  // describe license claims TODO
+  // TODO: test&impl contract getter servin active license offers (their cid s )!
+  // TODO: test&impl contract getter servin all (tokenId,cid) tuples for a given address
 })
