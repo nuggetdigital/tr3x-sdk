@@ -897,6 +897,9 @@ contract Tr3x is ERC1155MixedFungible {
         external
         activeOnly(_type)
     {
+        // Makin sure the license token actually exists
+        require(creators[_type] != address(0x0), "token does not exist");
+
         // Makin sure the purchaser is payin the minimum price at least.
         require(_price >= prices[_type], "price too low");
 
