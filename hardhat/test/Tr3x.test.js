@@ -35,6 +35,7 @@ describe("Tr3x", function() {
       exclusiveLicenseCreator,
       purchaser1,
       purchaser2,
+      purchaser3,
       ...more
     ] = await ethers.getSigners()
 
@@ -49,7 +50,8 @@ describe("Tr3x", function() {
         lessor.address,
         exclusiveLicenseCreator.address,
         purchaser1.address,
-        purchaser2.address
+        purchaser2.address,
+        purchaser3.address,
       ],
       Array(5).fill(INITIAL_TR3X_BALANCE)
     )
@@ -234,7 +236,20 @@ describe("Tr3x", function() {
       expect(purchaser2BalanceLeaseLicenseToken).to.equal(1n)
     })
 
-    // it("should fail if not paying the minimum price", async () => {})
+    it("should fail if not paying the minimum price", async () => {
+      const purchaser2Price = LEASE_LICENSE_PRICE - 1n
+
+        // kickin off a license purchase as purchaser3
+        const licensePurchase3 = tr3x
+        .connect(purchaser3)
+        // purchaser3 is payin less than the minimum price
+        .purchase(LEASE_LICENSE_ID, purchaser3Price)
+
+      // awaitin license creation - also signalled by events
+      await expect(licensePurchase3)
+// TODO to fail
+
+    })
 
     // it("should fail if the license token does not exist", async () => {})
   })

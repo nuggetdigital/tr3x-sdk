@@ -792,17 +792,17 @@ contract Tr3x is ERC1155MixedFungible {
     mapping(uint256 => bool) public inactive;
 
     modifier creatorOnly(uint256 _id) {
-        require(creators[_id] == msg.sender);
+        require(creators[_id] == msg.sender, "creator only access");
         _;
     }
 
     modifier ownerOnly() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "owner only access");
         _;
     }
 
     modifier activeOnly(uint256 _type) {
-        require(!inactive[_type]);
+        require(!inactive[_type], "inactive offering");
         _;
     }
 
@@ -898,15 +898,15 @@ contract Tr3x is ERC1155MixedFungible {
         activeOnly(_type)
     {
         // Makin sure the purchaser is payin the minimum price at least.
-        require(_price >= prices[_type]);
+        require(_price >= prices[_type], "price too low");
 
         // Makin sure the purchaser has sufficient TR3X balance.
-        require(_price <= balances[1][msg.sender]);
+        require(_price <= balances[1][msg.sender], "isufficient balance");
 
         // If we regard this an exclusive right
         if (isNonFungible(_type)) {
             // The token must not yet have an owner.
-            require(nfOwners[_type] == address(0x0));
+            require(nfOwners[_type] == address(0x0), "already acquired");
         }
 
         // Withdrawal
