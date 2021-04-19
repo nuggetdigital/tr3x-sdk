@@ -163,13 +163,25 @@ describe("Tr3x", function() {
         )
 
       // fetchin the post purchase lessee and lessor balances
-      const purchaser1Balance = await tr3x.balanceOf(purchaser1.address, TR3X)
+      const purchaser1BalanceTR3X = await tr3x.balanceOf(
+        purchaser1.address,
+        TR3X
+      )
 
-      expect(purchaser1Balance).to.equal(INITIAL_TR3X_BALANCE - purchaser1Price)
+      expect(purchaser1BalanceTR3X).to.equal(
+        INITIAL_TR3X_BALANCE - purchaser1Price
+      )
 
-      const lessorBalance = await tr3x.balanceOf(lessor.address, TR3X)
+      const lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
 
-      expect(lessorBalance).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
+      expect(lessorBalanceTR3X).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
+
+      const purchaser1BalanceLeaseLicenseToken = await tr3x.balanceOf(
+        purchaser1.address,
+        LEASE_LICENSE_ID
+      )
+
+      expect(purchaser1BalanceLeaseLicenseToken).to.equal(1n)
 
       // TODO 2nd license purchase
     })
