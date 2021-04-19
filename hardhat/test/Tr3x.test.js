@@ -130,9 +130,13 @@ describe("Tr3x", function() {
     })
 
     it("should list all current offers incl. an exclusive", async () => {
-      const expected = [LEASE_LICENSE_ID, EXCLUSIVE_LICENSE_ID].map(
-        ethers.BigNumber.from
-      )
+      const expected = [
+        [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)],
+        [
+          EXCLUSIVE_LICENSE_METADATA_CID,
+          ethers.BigNumber.from(EXCLUSIVE_LICENSE_ID)
+        ]
+      ]
 
       const offers = await tr3x.currentOffers()
 
@@ -331,7 +335,9 @@ describe("Tr3x", function() {
       })
 
       it("should not list an acquired exclusive license token under current offers", async () => {
-        const expected = [LEASE_LICENSE_ID].map(ethers.BigNumber.from)
+        const expected = [
+          [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+        ]
 
         const offers = await tr3x.currentOffers()
 
@@ -340,6 +346,5 @@ describe("Tr3x", function() {
     })
   })
 
-  // TODO: test&impl contract getter servin active license offers (their cid s )!
   // TODO: test&impl contract getter servin all (tokenId,cid) tuples for a given address
 })
