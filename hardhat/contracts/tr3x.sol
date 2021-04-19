@@ -791,6 +791,9 @@ contract Tr3x is ERC1155MixedFungible {
     mapping(uint256 => uint256) public prices;
     mapping(uint256 => bool) public inactive;
 
+    mapping(uint256 => string) public cids;
+    uint256[] public all;
+
     modifier creatorOnly(uint256 _id) {
         require(creators[_id] == msg.sender, "creator only access");
         _;
@@ -804,6 +807,16 @@ contract Tr3x is ERC1155MixedFungible {
     modifier activeOnly(uint256 _type) {
         require(!inactive[_type], "inactive offering");
         _;
+    }
+
+    function currentOffers() public view {
+      string[] memory offers;
+      for (uint i=0; i<all.length; i++) {
+          uint256 cur = all[i];
+        if (!inactive[cur] && nfOwners[cur] == address(0x0)) {
+          offers.push(cur);
+        }
+      }
     }
 
     /**
@@ -844,6 +857,12 @@ contract Tr3x is ERC1155MixedFungible {
 
         // Settin the minimum SLYC price for this piece of art.
         prices[_type] = _price;
+
+        // Storin the id => cid mapping
+        cids[_type] = _uri;
+
+        // Storin this id in our all collection
+        all.push(_type);
 
         // Emit a Transfer event with Create semantic to help with discovery.
         emit TransferSingle(msg.sender, address(0x0), address(0x0), _type, 0);
