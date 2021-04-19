@@ -172,7 +172,7 @@ describe("Tr3x", function() {
         INITIAL_TR3X_BALANCE - purchaser1Price
       )
 
-      const lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
+      let lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
 
       expect(lessorBalanceTR3X).to.equal(INITIAL_TR3X_BALANCE + purchaser1Price)
 
@@ -220,7 +220,7 @@ describe("Tr3x", function() {
         INITIAL_TR3X_BALANCE - purchaser2Price
       )
 
-      const lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
+      lessorBalanceTR3X = await tr3x.balanceOf(lessor.address, TR3X)
 
       expect(lessorBalanceTR3X).to.equal(
         INITIAL_TR3X_BALANCE + purchaser1Price + purchaser2Price
