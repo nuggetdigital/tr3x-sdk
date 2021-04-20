@@ -10,7 +10,7 @@ tape("assembles valid params to lease metadata", t => {
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mp3"
-  const cidv1 = "7".repeat(46)
+  const cid = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(64)
   const term = 100419n
@@ -24,22 +24,23 @@ tape("assembles valid params to lease metadata", t => {
     payee,
     blake3256: "deadbeef".repeat(8),
     mime,
-    cid: cidv1,
-    term: network + "#" + term.toString(),
+    cid,
+    term: network + " " + term.toString(),
     cap: cap.toString() + "€",
     paybackRatioEURTR3X,
     license: `
-The tr3x public performance lease license
+tr3x public performance lease license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 payable to ${network} network address ${payee}, to any person purchasing 
 a token of this digital license asset to perform the associated track 
 named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 
-256-bit hash digest ${blake3256}, in public up until the ${network} 
-network has finalized block number ${term}.
+256-bit hash digest ${blake3256}, in public, for a lease term of ${term} 
+finalized blocks on the ${network} network, starting with the block number 
+that the purchase transaction acquiring this license got finalized in.
 
 Maximum profits off of public performances of the lessee must not excceed 
-${cap}€, otherwise the lessee must monthly payback 100% of the excess 
+${cap}€, otherwise the lessee must monthly payback 50% of the excess 
 profits to above payee via the marketplace in TR3X at the EUR/TR3X payback 
 ratio of ${paybackRatioEURTR3X}.
 
@@ -47,8 +48,8 @@ The artist name "${artist}" must be visibly included in all digital and
 physical copies and noticeably mentioned at any public performances 
 explicitely accrediting ${artist} as the creator of "${title}".
 
-Claims of this particular license must be verified against their respective 
-purchases on the ${network} network.
+Claims of this license must be prooved using tr3x purchase transactions on 
+the ${network} network.
       `.trim()
   }
 
@@ -60,7 +61,7 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1,
+    cid,
     network,
     term,
     cap,
@@ -79,7 +80,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mp3"
-  const cidv1 = "7".repeat(46)
+  const cid = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(64)
 
@@ -88,11 +89,11 @@ tape("assembles valid params to exclusive metadata", t => {
     title,
     price: price.toString() + "STYC",
     payee,
-    blake3256: "deadbeef".repeat(8),
+    blake3256,
     mime,
-    cid: cidv1,
+    cid,
     license: `
-The tr3x public performance exclusive license
+tr3x public performance exclusive license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 payable to ${network} network address ${payee}, to the first person 
@@ -118,7 +119,7 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1,
+    cid,
     network
   })
 

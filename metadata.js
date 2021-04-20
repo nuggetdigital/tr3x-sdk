@@ -9,7 +9,7 @@ module.exports = {
     blake3256,
     copyrightYear,
     mime,
-    cidv1,
+    cid,
     network,
     payee
   }) {
@@ -33,7 +33,7 @@ module.exports = {
     if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
       throw TypeError("copyrightYear must be intlike")
     }
-    if (!/^[a-z2-7]+=*$/.test(cidv1) || cidv1.length !== 46) {
+    if (!/^[a-z2-7]+=*$/.test(cid) || cid.length !== 46) {
       throw TypeError("invalid cidv1")
     }
     if (!VALID_MIME_TYPES.has(mime)) {
@@ -44,14 +44,14 @@ module.exports = {
     }
     return {
       // IPFS content identifier of the track
-      cid: cidv1,
+      cid,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
       title,
       mime,
       artist,
       license: `
-The tr3x public performance exclusive license
+tr3x public performance exclusive license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 payable to ${network} network address ${payee}, to the first person 
@@ -80,7 +80,7 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1,
+    cid,
     network,
     payee,
     term,
@@ -107,7 +107,7 @@ purchases on the ${network} network.
     if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
       throw TypeError("copyrightYear must be intlike")
     }
-    if (!/^[a-z2-7]+=*$/.test(cidv1) || cidv1.length !== 46) {
+    if (!/^[a-z2-7]+=*$/.test(cid) || cid.length !== 46) {
       throw TypeError("invalid cidv1")
     }
     if (!VALID_MIME_TYPES.has(mime)) {
@@ -122,7 +122,6 @@ purchases on the ${network} network.
     if (typeof cap !== "bigint" || !(cap > 0n)) {
       throw TypeError("cap must be a bigint gt 0")
     }
-    // NOTE: ratio repr as number in range 0..1
     if (
       typeof paybackRatioEURTR3X !== "number" ||
       !(paybackRatioEURTR3X > 0) ||
@@ -132,24 +131,25 @@ purchases on the ${network} network.
     }
     return {
       // IPFS content identifier of the track
-      cid: cidv1,
+      cid,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
       title,
       mime,
       artist,
       license: `
-The tr3x public performance lease license
+tr3x public performance lease license
 
 Permission is hereby granted, at a charge of ${price}STYC (TR3X), 
 payable to ${network} network address ${payee}, to any person purchasing 
 a token of this digital license asset to perform the associated track 
 named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 
-256-bit hash digest ${blake3256}, in public up until the ${network} 
-network has finalized block number ${term}.
+256-bit hash digest ${blake3256}, in public, for a lease term of ${term} 
+finalized blocks on the ${network} network, starting with the block number 
+that the purchase transaction acquiring this license got finalized in.
 
 Maximum profits off of public performances of the lessee must not excceed 
-${cap}€, otherwise the lessee must monthly payback 100% of the excess 
+${cap}€, otherwise the lessee must monthly payback 50% of the excess 
 profits to above payee via the marketplace in TR3X at the EUR/TR3X payback 
 ratio of ${paybackRatioEURTR3X}.
 
@@ -157,8 +157,8 @@ The artist name "${artist}" must be visibly included in all digital and
 physical copies and noticeably mentioned at any public performances 
 explicitely accrediting ${artist} as the creator of "${title}".
 
-Claims of this particular license must be verified against their respective 
-purchases on the ${network} network.
+Claims of this license must be prooved using tr3x purchase transactions on 
+the ${network} network.
 `.trim(),
       // minimum STYC price
       price: price.toString() + "STYC",
@@ -167,7 +167,7 @@ purchases on the ${network} network.
       // payback exchange rate for lease violations
       paybackRatioEURTR3X,
       // ~lease validity period - expiry date expressed as finalized block number
-      term: network + "#" + term.toString(),
+      term: network + " " + term.toString(),
       // maximum permitted EUR profits from public performances
       cap: cap.toString() + "€"
     }
