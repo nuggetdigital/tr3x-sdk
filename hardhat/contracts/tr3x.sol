@@ -25,6 +25,7 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     uint256 nonce;
+    uint256 constant TR3X = 1;
     address owner;
     mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public prices;
@@ -137,30 +138,28 @@ contract Tr3x is ERC1155MixedFungible {
      * @notice Mints fungible native tokens. Only available to the owner.
      * @param _to Recipients that will receive TR3X as specified in _quantities.
      * @param _quantities Item quantities to transfer to each corresponding recipient.
+     * TODO: emit TransferBatch instead of multi TransferSingle ???
      */
     function mintNative(address[] calldata _to, uint256[] calldata _quantities)
         external
         ownerOnly()
     {
-        // TR3X token id
-        uint256 _id = 1;
-
         for (uint256 i = 0; i < _to.length; ++i) {
             address to = _to[i];
             uint256 quantity = _quantities[i];
 
             // Grant the tokens to the caller
-            balances[_id][to] = balances[_id][to].add(quantity);
+            balances[TR3X][to] = balances[TR3X][to].add(quantity);
 
             // Emit the Transfer/Mint event - the 0x0 source address implies a mint
-            emit TransferSingle(owner, address(0x0), to, _id, quantity);
+            emit TransferSingle(owner, address(0x0), to, TR3X, quantity);
 
             if (to.isContract()) {
                 _doSafeTransferAcceptanceCheck(
                     owner,
                     owner,
                     to,
-                    _id,
+                    TR3X,
                     quantity,
                     ""
                 );
@@ -232,17 +231,19 @@ contract Tr3x is ERC1155MixedFungible {
         }
 
         // Withdrawal
-        balances[1][msg.sender] = balances[1][msg.sender].sub(_price);
+        balances[TR3X][msg.sender] = balances[TR3X][msg.sender].sub(_price);
 
         // Credit
-        balances[1][creators[_type]] = balances[1][creators[_type]].add(_price);
+        balances[TR3X][creators[_type]] = balances[TR3X][creators[_type]].add(
+            _price
+        );
 
         // Emit the Transfer event for the TR3X payment.
         emit TransferSingle(
             address(this),
             msg.sender,
             creators[_type],
-            1,
+            TR3X,
             _price
         );
 
@@ -251,7 +252,7 @@ contract Tr3x is ERC1155MixedFungible {
                 address(this),
                 msg.sender,
                 creators[_type],
-                1,
+                TR3X,
                 _price,
                 ""
             );
