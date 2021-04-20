@@ -815,35 +815,74 @@ contract Tr3x is ERC1155MixedFungible {
     /**
         @dev MUST emit when a license token's is purchasability is disabled or reenabled (absense of an event assumes enabled).
     */
-    event Purchasability(uint256 _type, bool _enabled);
+    event Purchasability(uint256 _type, bool _purchasable);
 
     /**
      * @notice Lists current license token offers. Excluding acquired exclusives.
-     * @return An array of license token ids.
+     * @return An array of cid-id tuples.
      */
     function currentOffers() public view returns (CidId[] memory) {
         uint256 sum_ = 0;
 
-        // reducin to the current offer sum
+        // reducin to the held by sum
         for (uint256 i = 0; i < all.length; i++) {
             uint256 id = all[i].id;
+
             if (!disabled[id] && nfOwners[id] == address(0x0)) {
-                // active & a lease or an unacquired exclusive
+                // _who holds an exclusive or a lease
                 sum_ += 1;
             }
         }
 
         CidId[] memory offers_ = new CidId[](sum_);
 
+        uint256 j = 0;
+
         // stitchin together the listin
-        for (uint256 i = 0; i < sum_; i++) {
+        for (uint256 i = 0; i < all.length; i++) {
             uint256 id = all[i].id;
+
             if (!disabled[id] && nfOwners[id] == address(0x0)) {
-                offers_[i] = all[i];
+                offers_[j] = all[i];
+                j++;
             }
         }
 
         return offers_;
+    }
+
+    /**
+     * @notice Lists the tokenId-ipfsCid tuples held by given address.
+     * @return An array of cid-id tuples.
+     */
+    function heldBy(address _who) public view returns (CidId[] memory) {
+        uint256 sum_ = 0;
+
+        // reducin to the held by sum
+        for (uint256 i = 0; i < all.length; i++) {
+            uint256 id = all[i].id;
+
+            if (nfOwners[id] == _who || (balances[id][_who] > 0)) {
+                // _who holds the exclusive or a lease
+                sum_ += 1;
+            }
+        }
+
+        CidId[] memory held_ = new CidId[](sum_);
+
+        uint256 j = 0;
+
+        // stitchin together the listin
+        for (uint256 i = 0; i < all.length; i++) {
+            uint256 id = all[i].id;
+
+            if (nfOwners[id] == _who || balances[id][_who] > 0) {
+                held_[j] = all[i];
+                j++;
+            }
+        }
+
+        return held_;
     }
 
     /**

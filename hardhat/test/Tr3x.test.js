@@ -130,17 +130,15 @@ describe("Tr3x", function() {
     })
 
     it("should list all current offers incl. an exclusive", async () => {
-      const expected = [
+      const offers = await tr3x.currentOffers()
+
+      expect(offers).to.deep.equal([
         [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)],
         [
           EXCLUSIVE_LICENSE_METADATA_CID,
           ethers.BigNumber.from(EXCLUSIVE_LICENSE_ID)
         ]
-      ]
-
-      const offers = await tr3x.currentOffers()
-
-      expect(offers).to.deep.equal(expected)
+      ])
     })
   })
 
@@ -262,6 +260,18 @@ describe("Tr3x", function() {
 
         expect(purchaser2LeaseLicenseTokenBalance).to.equal(1n)
       })
+
+      it("should list lease license tokens held by given addresses", async () => {
+        const licensesHeldByPurchaser1 = await tr3x.heldBy(purchaser1.address)
+        const licensesHeldByPurchaser2 = await tr3x.heldBy(purchaser2.address)
+
+        expect(licensesHeldByPurchaser1).to.deep.equal([
+          [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+        ])
+        expect(licensesHeldByPurchaser2).to.deep.equal([
+          [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+        ])
+      })
     })
 
     describe("exclusive license purchases", () => {
@@ -326,7 +336,18 @@ describe("Tr3x", function() {
         expect(purchaser3ExclusiveLicenseTokenBalance).to.equal(1n)
       })
 
-      it("should fail if the exclusive license token has already been purchased", async () => {
+      it("should list tokens held by given address - also incl. an exclusive", async () => {
+        const licensesHeldByPurchaser3 = await tr3x.heldBy(purchaser3.address)
+
+        expect(licensesHeldByPurchaser3).to.deep.equal([
+          [
+            EXCLUSIVE_LICENSE_METADATA_CID,
+            ethers.BigNumber.from(EXCLUSIVE_LICENSE_ID)
+          ]
+        ])
+      })
+
+      it("should fail if the exclusive has already been purchased", async () => {
         const licensePurchase = tr3x
           .connect(purchaser1)
           .purchase(EXCLUSIVE_LICENSE_ID, EXCLUSIVE_LICENSE_PRICE)
@@ -334,14 +355,12 @@ describe("Tr3x", function() {
         await expect(licensePurchase).to.be.revertedWith("already acquired")
       })
 
-      it("should not list an acquired exclusive license token under current offers", async () => {
-        const expected = [
-          [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
-        ]
-
+      it("should not list an acquired exclusive under current offers", async () => {
         const offers = await tr3x.currentOffers()
 
-        expect(offers).to.deep.equal(expected)
+        expect(offers).to.deep.equal([
+          [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+        ])
       })
     })
   })
@@ -379,12 +398,10 @@ describe("Tr3x", function() {
       await expect(licensePurchase).to.be.revertedWith("disabled offering")
     })
 
-    it("should not list a deactivated license token under offers", async () => {
-      const expected = []
-
+    it("should not list deactivated license token under offers", async () => {
       const offers = await tr3x.currentOffers()
 
-      expect(offers).to.deep.equal(expected)
+      expect(offers).to.deep.equal([])
     })
   })
 
@@ -436,13 +453,11 @@ describe("Tr3x", function() {
     })
 
     it("should list a reactivated license token under current offers", async () => {
-      const expected = [
-        [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
-      ]
-
       const offers = await tr3x.currentOffers()
 
-      expect(offers).to.deep.equal(expected)
+      expect(offers).to.deep.equal([
+        [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
+      ])
     })
   })
 
