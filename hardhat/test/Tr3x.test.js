@@ -262,8 +262,12 @@ describe("Tr3x", function() {
       })
 
       it("should list lease license tokens held by given addresses", async () => {
-        const licensesHeldByPurchaser1 = await tr3x.licensesHeldBy(purchaser1.address)
-        const licensesHeldByPurchaser2 = await tr3x.licensesHeldBy(purchaser2.address)
+        const licensesHeldByPurchaser1 = await tr3x.licensesHeldBy(
+          purchaser1.address
+        )
+        const licensesHeldByPurchaser2 = await tr3x.licensesHeldBy(
+          purchaser2.address
+        )
 
         expect(licensesHeldByPurchaser1).to.deep.equal([
           [LEASE_LICENSE_METADATA_CID, ethers.BigNumber.from(LEASE_LICENSE_ID)]
@@ -337,7 +341,9 @@ describe("Tr3x", function() {
       })
 
       it("should list tokens held by given address - also incl. an exclusive", async () => {
-        const licensesHeldByPurchaser3 = await tr3x.licensesHeldBy(purchaser3.address)
+        const licensesHeldByPurchaser3 = await tr3x.licensesHeldBy(
+          purchaser3.address
+        )
 
         expect(licensesHeldByPurchaser3).to.deep.equal([
           [
