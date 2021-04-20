@@ -1,8 +1,0 @@
-tr3x.interface.functions['creators(uint256)']
-tr3x.interface.functions.creators(uint256)
-await tr3x.creators(1)
-await tr3x
-await tr3x.creators()
-let tr3x =  await ethers.getContractFactory('ERC1155Tr3x');
-.exit
-const ERC1155Tr3x = await ethers.getContractFactory('ERC1155Tr3x');
