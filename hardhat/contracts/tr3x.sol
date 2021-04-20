@@ -852,10 +852,10 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     /**
-     * @notice Lists the tokenId-ipfsCid tuples held by given address.
+     * @notice Lists the licenses held by given address.
      * @return An array of cid-id tuples.
      */
-    function heldBy(address _who) public view returns (CidId[] memory) {
+    function licensesHeldBy(address _who) public view returns (CidId[] memory) {
         uint256 sum_ = 0;
 
         // reducin to the held by sum
