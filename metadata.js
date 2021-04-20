@@ -122,7 +122,7 @@ purchases on the ${network} network.
     if (typeof cap !== "bigint" || !(cap > 0n)) {
       throw TypeError("cap must be a bigint gt 0")
     }
-    // NOTE: ratio repr as number in range 0..1 ? (only in .js - not .sol)
+    // NOTE: ratio repr as number in range 0..1
     if (
       typeof paybackRatioEURTR3X !== "number" ||
       !(paybackRatioEURTR3X > 0) ||
