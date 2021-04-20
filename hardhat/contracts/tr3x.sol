@@ -10,18 +10,22 @@
 pragma solidity ^0.8.3;
 
 import "./ERC1155MixedFungible.sol";
+import "./Address.sol";
 
 /**
     @dev Custom ERC1155 incorporating all tr3x logic.
 */
 contract Tr3x is ERC1155MixedFungible {
+    using SafeMath for uint256;
+    using Address for address;
+
     struct CidId {
         string cid;
         uint256 id;
     }
 
-    address owner;
     uint256 nonce;
+    address owner;
     mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public prices;
     mapping(uint256 => bool) public disabled;
@@ -146,12 +150,12 @@ contract Tr3x is ERC1155MixedFungible {
             uint256 quantity = _quantities[i];
 
             // Grant the tokens to the caller
-            balances[_id][to] = SafeMath.add(quantity, balances[_id][to]);
+            balances[_id][to] = balances[_id][to].add(quantity);
 
             // Emit the Transfer/Mint event - the 0x0 source address implies a mint
             emit TransferSingle(owner, address(0x0), to, _id, quantity);
 
-            if (Address.isContract(to)) {
+            if (to.isContract()) {
                 _doSafeTransferAcceptanceCheck(
                     owner,
                     owner,
@@ -201,6 +205,9 @@ contract Tr3x is ERC1155MixedFungible {
     }
 
     /**
+     * @dev Follows ERC-1155's Safe Transfer Rules except for the approval part.
+     * Rationale is that the balance transfer is implicitely approved by
+     * the simple means of having signed the purchase transaction.
      * @notice Purchases an item (lease or exclusive) from a creator.
      * @param _type Item identifier. May be a base type or an actual _id.
      * @param _price STYC price being paid.
@@ -225,13 +232,10 @@ contract Tr3x is ERC1155MixedFungible {
         }
 
         // Withdrawal
-        balances[1][msg.sender] = SafeMath.sub(balances[1][msg.sender], _price);
+        balances[1][msg.sender] = balances[1][msg.sender].sub(_price);
 
         // Credit
-        balances[1][creators[_type]] = SafeMath.add(
-            balances[1][creators[_type]],
-            _price
-        );
+        balances[1][creators[_type]] = balances[1][creators[_type]].add(_price);
 
         // Emit the Transfer event for the TR3X payment.
         emit TransferSingle(
@@ -242,11 +246,19 @@ contract Tr3x is ERC1155MixedFungible {
             _price
         );
 
+        if (creators[_type].isContract()) {
+            _doSafeTransferAcceptanceCheck(
+                address(this),
+                msg.sender,
+                creators[_type],
+                1,
+                _price,
+                ""
+            );
+        }
+
         // Transferin the license token.
-        balances[_type][msg.sender] = SafeMath.add(
-            balances[_type][msg.sender],
-            1
-        );
+        balances[_type][msg.sender] = balances[_type][msg.sender].add(1);
 
         // Separately storing exclusive license token ownerships.
         if (isNonFungible(_type)) {
@@ -257,9 +269,9 @@ contract Tr3x is ERC1155MixedFungible {
         // The zero address implies a mint.
         emit TransferSingle(address(this), address(0x0), msg.sender, _type, 1);
 
-        if (Address.isContract(msg.sender)) {
+        if (msg.sender.isContract()) {
             _doSafeTransferAcceptanceCheck(
-                msg.sender,
+                address(this),
                 address(0x0),
                 msg.sender,
                 _type,
