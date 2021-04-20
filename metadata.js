@@ -9,32 +9,42 @@ module.exports = {
     blake3256,
     copyrightYear,
     mime,
-    cidv1base32,
+    cidv1,
     network,
     payee
   }) {
-    if (!VALID_NETWORKS.has(network))
+    if (!VALID_NETWORKS.has(network)) {
       throw TypeError(
         `network must be one of ${[...VALID_NETWORKS.join(", ")]}`
       )
-    if (typeof artist !== "string" || !artist.length)
+    }
+    if (typeof artist !== "string" || !artist.length) {
       throw TypeError("artist must be a string")
-    if (typeof title !== "string" || !title.length)
+    }
+    if (typeof title !== "string" || !title.length) {
       throw TypeError("title must be a string")
-    if (typeof price !== "bigint" || !(price > 0n))
+    }
+    if (typeof price !== "bigint" || !(price > 0n)) {
       throw TypeError("price must be a bigint gt 0")
-    if (!/^[a-f0-9]{64}$/.test(blake3256))
+    }
+    if (!/^[a-f0-9]{64}$/.test(blake3256)) {
       throw TypeError("blake3256 must be a hex string")
-    if (!/^[0-9]{4}$/.test(copyrightYear?.toString()))
+    }
+    if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
       throw TypeError("copyrightYear must be intlike")
-    if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46)
-      throw TypeError("invalid cidv1base32")
-    if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
-    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee))
+    }
+    if (!/^[a-z2-7]+=*$/.test(cidv1) || cidv1.length !== 46) {
+      throw TypeError("invalid cidv1")
+    }
+    if (!VALID_MIME_TYPES.has(mime)) {
+      throw TypeError("invalid mime")
+    }
+    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee)) {
       throw TypeError("payee must match the ethereum address format")
+    }
     return {
       // IPFS content identifier of the track
-      cid: cidv1base32,
+      cid: cidv1,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
       title,
@@ -70,44 +80,59 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1base32,
+    cidv1,
     network,
     payee,
     term,
     cap,
     paybackRatioEURTR3X
   }) {
-    if (!VALID_NETWORKS.has(network))
+    if (!VALID_NETWORKS.has(network)) {
       throw TypeError(
         `network must be one of ${[...VALID_NETWORKS.join(", ")]}`
       )
-    if (typeof artist !== "string" || !artist.length)
+    }
+    if (typeof artist !== "string" || !artist.length) {
       throw TypeError("artist must be a string")
-    if (typeof title !== "string" || !title.length)
+    }
+    if (typeof title !== "string" || !title.length) {
       throw TypeError("title must be a string")
-    if (typeof price !== "bigint" || !(price > 0n))
+    }
+    if (typeof price !== "bigint" || !(price > 0n)) {
       throw TypeError("price must be a bigint gt 0")
-    if (!/^[a-f0-9]{64}$/.test(blake3256))
+    }
+    if (!/^[a-f0-9]{64}$/.test(blake3256)) {
       throw TypeError("blake3256 must be a hex string")
-    if (!/^[0-9]{4}$/.test(copyrightYear?.toString()))
+    }
+    if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
       throw TypeError("copyrightYear must be intlike")
-    if (!/^[a-z2-7]+=*$/.test(cidv1base32) || cidv1base32.length !== 46)
-      throw TypeError("invalid cidv1base32")
-    if (!VALID_MIME_TYPES.has(mime)) throw TypeError("invalid mime")
-    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee))
+    }
+    if (!/^[a-z2-7]+=*$/.test(cidv1) || cidv1.length !== 46) {
+      throw TypeError("invalid cidv1")
+    }
+    if (!VALID_MIME_TYPES.has(mime)) {
+      throw TypeError("invalid mime")
+    }
+    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee)) {
       throw TypeError("payee must match the ethereum address format")
-    if (typeof term !== "bigint") throw TypeError("term must be a bigint")
-    if (typeof cap !== "bigint") throw TypeError("cap must be a bigint")
+    }
+    if (typeof term !== "bigint" || !(term > 0n)) {
+      throw TypeError("term must be a bigint gt 0")
+    }
+    if (typeof cap !== "bigint" || !(cap > 0n)) {
+      throw TypeError("cap must be a bigint gt 0")
+    }
     // NOTE: ratio repr as number in range 0..1 ? (only in .js - not .sol)
     if (
       typeof paybackRatioEURTR3X !== "number" ||
       !(paybackRatioEURTR3X > 0) ||
       paybackRatioEURTR3X > 1
-    )
+    ) {
       throw TypeError("paybackRatioEURTR3X must be a float gt 0 and lte 1")
+    }
     return {
       // IPFS content identifier of the track
-      cid: cidv1base32,
+      cid: cidv1,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
       title,

@@ -10,7 +10,7 @@ tape("assembles valid params to lease metadata", t => {
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mp3"
-  const cidv1base32 = "7".repeat(46)
+  const cidv1 = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(64)
   const term = 100419n
@@ -24,7 +24,7 @@ tape("assembles valid params to lease metadata", t => {
     payee,
     blake3256: "deadbeef".repeat(8),
     mime,
-    cid: cidv1base32,
+    cid: cidv1,
     term: network + "#" + term.toString(),
     cap: cap.toString() + "€",
     paybackRatioEURTR3X,
@@ -60,7 +60,7 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1base32,
+    cidv1,
     network,
     term,
     cap,
@@ -79,7 +79,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mp3"
-  const cidv1base32 = "7".repeat(46)
+  const cidv1 = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(64)
 
@@ -90,7 +90,7 @@ tape("assembles valid params to exclusive metadata", t => {
     payee,
     blake3256: "deadbeef".repeat(8),
     mime,
-    cid: cidv1base32,
+    cid: cidv1,
     license: `
 The tr3x public performance exclusive license
 
@@ -118,7 +118,7 @@ purchases on the ${network} network.
     blake3256,
     copyrightYear,
     mime,
-    cidv1base32,
+    cidv1,
     network
   })
 
