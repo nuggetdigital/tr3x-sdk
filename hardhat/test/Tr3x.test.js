@@ -460,6 +460,4 @@ describe("Tr3x", function() {
       ])
     })
   })
-
-  // TODO: test&impl contract getter servin all (tokenId,cid) tuples for a given address
 })
