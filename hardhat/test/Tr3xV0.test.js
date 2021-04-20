@@ -6,7 +6,7 @@ const { expect } = require("chai")
  * incremental fashion, and we are tracin **global** balances throughout
  * the test suite.
  */
-describe("Tr3x", function() {
+describe("Tr3xV0", function() {
   // TR3X will always be token id 1
   const TR3X = 1
   // what we mint to every wallet before testing
@@ -30,10 +30,10 @@ describe("Tr3x", function() {
   let tr3x, lessor, exclusiveLicenseCreator, purchaser1, purchaser2
 
   before(async () => {
-    const Tr3x = await ethers.getContractFactory("Tr3x")
+    const Tr3xV0 = await ethers.getContractFactory("Tr3xV0")
 
     // TODO: find a way to deploy as specific signer
-    tr3x = await Tr3x.deploy()
+    tr3x = await Tr3xV0.deploy()
     ;[
       lessor,
       exclusiveLicenseCreator,

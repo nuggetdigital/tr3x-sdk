@@ -15,7 +15,7 @@ import "./Address.sol";
 /**
     @dev Custom ERC1155 incorporating all tr3x logic.
 */
-contract Tr3x is ERC1155MixedFungible {
+contract Tr3xV0 is ERC1155MixedFungible {
     using SafeMath for uint256;
     using Address for address;
 
