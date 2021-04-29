@@ -1,5 +1,5 @@
 const VALID_MIME_TYPES = new Set(["audio/wav", "audio/mp3"])
-const VALID_NETWORKS = new Set(["Moonbeam", "Moonriver"])
+const VALID_NETWORKS = new Set(["Homestead", "Ropsten", "Moonbeam", "Moonriver"])
 
 module.exports = {
   exclusive({
@@ -15,7 +15,7 @@ module.exports = {
   }) {
     if (!VALID_NETWORKS.has(network)) {
       throw TypeError(
-        `network must be one of ${[...VALID_NETWORKS.join(", ")]}`
+        `network must be one of ${[...VALID_NETWORKS].join(", ")}`
       )
     }
     if (typeof artist !== "string" || !artist.length) {
