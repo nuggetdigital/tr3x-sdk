@@ -89,7 +89,7 @@ purchases on the ${network} network.
   }) {
     if (!VALID_NETWORKS.has(network)) {
       throw TypeError(
-        `network must be one of ${[...VALID_NETWORKS.join(", ")]}`
+        `network must be one of ${[...VALID_NETWORKS].join(", ")}`
       )
     }
     if (typeof artist !== "string" || !artist.length) {
