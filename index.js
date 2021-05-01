@@ -7,12 +7,10 @@ babelsome({
   ignore: []
 })
 
-import metadata from "./metadata.js"
-import initIPFS from "./ipfs.js"
+import _metadata from "./metadata.js"
+import _initIPFS from "./ipfs.js"
 import { hash } from "blake3-wasm"
 
-export default {
-  metadata,
-  initIPFS,
-  blake3256: hash
-}
+export const metadata = _metadata
+export const initIPFS = _initIPFS
+export const blake3256 = hash
