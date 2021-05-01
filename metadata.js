@@ -96,7 +96,7 @@ purchases on the ${network} network.
     payee,
     term,
     cap,
-    paybackRatioEURTR3X
+    paybackRateEURTR3X
   }) {
     if (!VALID_NETWORKS.has(network)) {
       throw TypeError(
@@ -134,11 +134,11 @@ purchases on the ${network} network.
       throw TypeError("cap must be a bigint gt 0")
     }
     if (
-      typeof paybackRatioEURTR3X !== "number" ||
-      !(paybackRatioEURTR3X > 0) ||
-      paybackRatioEURTR3X > 1
+      typeof paybackRateEURTR3X !== "number" ||
+      !(paybackRateEURTR3X > 0) ||
+      paybackRateEURTR3X > 1
     ) {
-      throw TypeError("paybackRatioEURTR3X must be a float gt 0 and lte 1")
+      throw TypeError("paybackRateEURTR3X must be a float gt 0 and lte 1")
     }
     return {
       // IPFS content identifier of the track
@@ -162,7 +162,7 @@ that the purchase transaction acquiring this license got finalized in.
 Maximum profits off of public performances of the lessee must not excceed 
 ${cap}€, otherwise the lessee must monthly payback 50% of the excess 
 profits to above payee via the marketplace in TR3X at the EUR/TR3X payback 
-ratio of ${paybackRatioEURTR3X}.
+rate of ${paybackRateEURTR3X}.
 
 The artist name "${artist}" must be visibly included in all digital and 
 physical copies and noticeably mentioned at any public performances 
@@ -176,7 +176,7 @@ the ${network} network.
       // 4 now just a moonbeam address
       payee,
       // payback exchange rate for lease violations
-      paybackRatioEURTR3X,
+      paybackRateEURTR3X,
       // ~lease validity period - expiry date expressed as finalized block number
       term: network + " " + term.toString(),
       // maximum permitted EUR profits from public performances

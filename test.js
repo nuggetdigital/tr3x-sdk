@@ -13,7 +13,7 @@ tape("assembles valid params to lease metadata", t => {
   const payee = "0x" + "0".repeat(40)
   const term = 100419n
   const cap = 25000n
-  const paybackRatioEURTR3X = 1.0
+  const paybackRateEURTR3X = 1.0
 
   const expected = {
     artist,
@@ -25,7 +25,7 @@ tape("assembles valid params to lease metadata", t => {
     cid,
     term: network + " " + term.toString(),
     cap: cap.toString() + "€",
-    paybackRatioEURTR3X,
+    paybackRateEURTR3X,
     license: `
 tr3x public performance lease license
 
@@ -40,7 +40,7 @@ that the purchase transaction acquiring this license got finalized in.
 Maximum profits off of public performances of the lessee must not excceed 
 ${cap}€, otherwise the lessee must monthly payback 50% of the excess 
 profits to above payee via the marketplace in TR3X at the EUR/TR3X payback 
-ratio of ${paybackRatioEURTR3X}.
+rate of ${paybackRateEURTR3X}.
 
 The artist name "${artist}" must be visibly included in all digital and 
 physical copies and noticeably mentioned at any public performances 
@@ -63,7 +63,7 @@ the ${network} network.
     network,
     term,
     cap,
-    paybackRatioEURTR3X
+    paybackRateEURTR3X
   })
 
   Object.entries(expected).forEach(([k, v]) => t.equal(artifact[k], v, k))
