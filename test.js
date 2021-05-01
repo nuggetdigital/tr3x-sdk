@@ -10,7 +10,7 @@ tape("assembles valid params to lease metadata", t => {
   const mime = "audio/mp3"
   const cid = "7".repeat(46)
   const network = "Moonbeam"
-  const payee = "0x" + "0".repeat(64)
+  const payee = "0x" + "0".repeat(40)
   const term = 100419n
   const cap = 25000n
   const paybackRatioEURTR3X = 1.0
@@ -80,7 +80,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const mime = "audio/mp3"
   const cid = "7".repeat(46)
   const network = "Moonbeam"
-  const payee = "0x" + "0".repeat(64)
+  const payee = "0x" + "0".repeat(40)
 
   const expected = {
     artist,

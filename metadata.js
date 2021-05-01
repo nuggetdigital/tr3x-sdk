@@ -50,7 +50,7 @@ export default {
     if (!VALID_MIME_TYPES.has(mime)) {
       throw TypeError("invalid mime")
     }
-    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee)) {
+    if (!/^(0x)?[0-9a-fA-F]{40}$/.test(payee)) {
       throw TypeError("payee must match the ethereum address format")
     }
     return {
@@ -124,7 +124,7 @@ purchases on the ${network} network.
     if (!VALID_MIME_TYPES.has(mime)) {
       throw TypeError("invalid mime")
     }
-    if (!/^0x(?:[A-Fa-f0-9]{64})$/.test(payee)) {
+    if (!/^(0x)?[0-9a-fA-F]{40}$/.test(payee)) {
       throw TypeError("payee must match the ethereum address format")
     }
     if (typeof term !== "bigint" || !(term > 0n)) {
