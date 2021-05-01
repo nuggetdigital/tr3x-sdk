@@ -9,10 +9,10 @@ babelsome({
 
 import metadata from "./metadata.js"
 import initIPFS from "./ipfs.js"
-import blake3 from "blake3-wasm"
+import { hash } from "blake3-wasm"
 
 export default {
   metadata,
   initIPFS,
-  blake3256: blake3.hash
+  blake3256: hash
 }
