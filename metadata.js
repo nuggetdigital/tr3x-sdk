@@ -133,12 +133,8 @@ purchases on the ${network} network.
     if (typeof cap !== "bigint" || !(cap > 0n)) {
       throw TypeError("cap must be a bigint gt 0")
     }
-    if (
-      typeof paybackRateEURTR3X !== "number" ||
-      !(paybackRateEURTR3X > 0) ||
-      paybackRateEURTR3X > 1
-    ) {
-      throw TypeError("paybackRateEURTR3X must be a float gt 0 and lte 1")
+    if (typeof paybackRateEURTR3X !== "number" || !(paybackRateEURTR3X > 0)) {
+      throw TypeError("paybackRateEURTR3X must be a float gt 0")
     }
     return {
       // IPFS content identifier of the track
