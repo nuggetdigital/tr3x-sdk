@@ -1,4 +1,10 @@
-const VALID_MIME_TYPES = new Set(["audio/wav", "audio/mp3"])
+const VALID_MIME_TYPES = new Set([
+  "audio/wav",
+  "audio/mpeg",
+  "audio/mp3",
+  "application/octet-stream"
+])
+
 const VALID_NETWORKS = new Set([
   "Homestead",
   "Ropsten",
