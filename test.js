@@ -1,7 +1,5 @@
-const tape = require("tape")
-const ngin = require(".")
-const lite = require("text-encoder-lite")
-const enc = new lite.TextEncoderLite()
+import tape from "tape"
+import util from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -53,7 +51,7 @@ the ${network} network.
       `.trim()
   }
 
-  const metadata = ngin.metadata.lease({
+  const metadata = util.metadata.lease({
     artist,
     title,
     price,
@@ -111,7 +109,7 @@ purchases on the ${network} network.
     `.trim()
   }
 
-  const metadata = ngin.metadata.exclusive({
+  const metadata = util.metadata.exclusive({
     artist,
     title,
     price,
@@ -130,20 +128,14 @@ purchases on the ${network} network.
 
 tape("blake3256 some data possibly in the browser using wasm", async t => {
   t.same(
-    ngin.blake3256("fraud world").toString("hex"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
-    "utf8 input"
-  )
-  t.same(
-    ngin.blake3256(enc.encode("fraud world")).toString("hex"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
-    "Uint8Array input"
+    util.blake3256(Buffer.from("fraud world")).toString("hex"),
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
   )
 })
 
 // WORKS BUT HANGS
 tape.skip("ipfs add & cat", async t => {
-  const ipfs = await ngin.initIPFS()
+  const ipfs = await util.initIPFS()
 
   const file = "fraud world"
 
@@ -153,7 +145,7 @@ tape.skip("ipfs add & cat", async t => {
 
   const back = await ipfs.cat(res.cid, "utf8")
 
-  t.same(back, file)
+  t.same(Buffer.from(back).toString(), file)
 
   ipfs.kill(t.end)
 })

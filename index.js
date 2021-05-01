@@ -1,12 +1,18 @@
+import babelsome from "@babel/register"
+
 // NOTE: usin @babel/register's magic here to workaround an ipfs-core dep err
-require("@babel/register")({
+babelsome({
   // This will override `node_modules` ignoring - you can alternatively pass
   // an array of strings to be explicitly matched or a regex / glob
-  ignore: [],
+  ignore: []
 })
 
-module.exports = {
-  metadata: require("./metadata"),
-  initIPFS: require("./ipfs"),
-  blake3256: require("blake3-wasm").hash
+import metadata from "./metadata.js"
+import initIPFS from "./ipfs.js"
+import blake3 from "blake3-wasm"
+
+export default {
+  metadata,
+  initIPFS,
+  blake3256: blake3.hash
 }

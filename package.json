@@ -1,5 +1,6 @@
 {
   "name": "tr3x-util",
+  "type": "module",
   "version": "0.0.0",
   "description": "tr3x core funcs",
   "main": "index.js",
@@ -28,7 +29,6 @@
   },
   "dependencies": {
     "blake3-wasm": "2.1.5",
-    "ipfs-core": "0.5.4",
-    "text-encoder-lite": "2.0.0"
+    "ipfs-core": "0.5.4"
   }
 }

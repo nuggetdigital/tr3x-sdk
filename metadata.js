@@ -1,7 +1,12 @@
 const VALID_MIME_TYPES = new Set(["audio/wav", "audio/mp3"])
-const VALID_NETWORKS = new Set(["Homestead", "Ropsten", "Moonbeam", "Moonriver"])
+const VALID_NETWORKS = new Set([
+  "Homestead",
+  "Ropsten",
+  "Moonbeam",
+  "Moonriver"
+])
 
-module.exports = {
+export default {
   exclusive({
     artist,
     title,
