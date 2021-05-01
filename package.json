@@ -28,7 +28,7 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake3-wasm": "2.1.5",
+    "blake2b-wasm": "2.1.0",
     "ipfs-core": "0.5.4"
   }
 }

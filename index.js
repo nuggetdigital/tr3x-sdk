@@ -8,9 +8,9 @@ babelsome({
 })
 
 import _metadata from "./metadata.js"
-import _initIPFS from "./ipfs.js"
-import { hash } from "blake3-wasm"
+import _initIpfs from "./ipfs.js"
+import _init from "./blake2b.js"
 
 export const metadata = _metadata
-export const initIPFS = _initIPFS
-export const blake3256 = hash
+export const initIpfs = _initIpfs
+export const initBlake2b = _init

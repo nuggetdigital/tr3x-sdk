@@ -1,6 +1,6 @@
 import IPFS from "ipfs-core"
 
-export default async function init() {
+export default async function initIpfs() {
   const ipfs = await IPFS.create()
   return {
     async add(buf) {

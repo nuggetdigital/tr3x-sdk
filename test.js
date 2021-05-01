@@ -1,5 +1,5 @@
 import tape from "tape"
-import util from "./index.js"
+import { metadata, initIpfs, initBlake2b } from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -51,7 +51,7 @@ the ${network} network.
       `.trim()
   }
 
-  const metadata = util.metadata.lease({
+  const artifact = metadata.lease({
     artist,
     title,
     price,
@@ -66,7 +66,7 @@ the ${network} network.
     paybackRatioEURTR3X
   })
 
-  Object.entries(expected).forEach(([k, v]) => t.equal(metadata[k], v, k))
+  Object.entries(expected).forEach(([k, v]) => t.equal(artifact[k], v, k))
 
   t.end()
 })
@@ -109,7 +109,7 @@ purchases on the ${network} network.
     `.trim()
   }
 
-  const metadata = util.metadata.exclusive({
+  const artifact = metadata.exclusive({
     artist,
     title,
     price,
@@ -121,21 +121,27 @@ purchases on the ${network} network.
     network
   })
 
-  Object.entries(expected).forEach(([k, v]) => t.equal(metadata[k], v, k))
+  Object.entries(expected).forEach(([k, v]) => t.equal(artifact[k], v, k))
 
   t.end()
 })
 
 tape("blake3256 some data possibly in the browser using wasm", async t => {
+  const blake2b = await initBlake2b()
+
+  const hash = blake2b()
+    .update(Buffer.from('fraud world'))
+    .digest('hex')
+
   t.same(
-    util.blake3256(Buffer.from("fraud world")).toString("hex"),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
+    hash,
+    "d3d8a505c0ef238d3f2701b072caaf20aa936fc8c8ad51dff35963a5b4719240"
   )
 })
 
 // WORKS BUT HANGS
 tape.skip("ipfs add & cat", async t => {
-  const ipfs = await util.initIPFS()
+  const ipfs = await initIpfs()
 
   const file = "fraud world"
 
