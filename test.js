@@ -1,5 +1,5 @@
 import tape from "tape"
-import { metadata, initIpfs, initBlake2b } from "./index.js"
+import { metadata, initIpfs, initHash } from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -127,11 +127,9 @@ purchases on the ${network} network.
 })
 
 tape("blake3256 some data possibly in the browser using wasm", async t => {
-  const blake2b = await initBlake2b()
+  const blake2b = await initHash()
 
-  const hash = blake2b()
-    .update(Buffer.from('fraud world'))
-    .digest('hex')
+  const hash = blake2b().update(Buffer.from("fraud world")).digest("hex")
 
   t.same(
     hash,

@@ -13,4 +13,4 @@ import _init from "./blake2b.js"
 
 export const metadata = _metadata
 export const initIpfs = _initIpfs
-export const initBlake2b = _init
+export const initHash = _init
