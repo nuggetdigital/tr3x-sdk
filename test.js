@@ -1,5 +1,5 @@
 import tape from "tape"
-import { metadata, initIpfs, initHash } from "./index.js"
+import { metadata, initIpfs, blake3hash256hex } from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -126,15 +126,13 @@ purchases on the ${network} network.
   t.end()
 })
 
-tape("blake3256 some data possibly in the browser using wasm", async t => {
-  const blake2b = await initHash()
-
-  const hash = blake2b().update(Buffer.from("fraud world")).digest("hex")
-
+tape("blake3256 some data possibly in the browser using wasm", t => {
   t.same(
-    hash,
+    blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
     "d3d8a505c0ef238d3f2701b072caaf20aa936fc8c8ad51dff35963a5b4719240"
   )
+
+  t.end()
 })
 
 // WORKS BUT HANGS

@@ -28,7 +28,7 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake2b-wasm": "2.1.0",
+    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#0.1.0",
     "ipfs-core": "0.5.4"
   }
 }

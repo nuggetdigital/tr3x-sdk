@@ -9,8 +9,8 @@ babelsome({
 
 import _metadata from "./metadata.js"
 import _initIpfs from "./ipfs.js"
-import _init from "./blake2b.js"
+import { hash256hex } from "blake3-wasm-sync"
 
 export const metadata = _metadata
 export const initIpfs = _initIpfs
-export const initHash = _init
+export const blake3hash256hex = hash256hex
