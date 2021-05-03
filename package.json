@@ -2,7 +2,7 @@
   "name": "tr3x-util",
   "type": "module",
   "version": "0.0.0",
-  "description": "tr3x core funcs",
+  "description": "tr3x core util funcs",
   "main": "index.js",
   "scripts": {
     "test": "node ./test.js",
@@ -14,7 +14,9 @@
   },
   "keywords": [
     "tr3x",
-    "license"
+    "music",
+    "license",
+    "mart"
   ],
   "author": "Noah Anabiik Schwarz",
   "license": "MIT",
@@ -28,7 +30,7 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#0.1.0",
+    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#v0.1.0",
     "ipfs-core": "0.5.4"
   }
 }

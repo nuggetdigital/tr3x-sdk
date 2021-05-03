@@ -23,6 +23,8 @@ tape("assembles valid params to lease metadata", t => {
     blake3256: "deadbeef".repeat(8),
     mime,
     cid,
+    network,
+    copyrightYear,
     term: network + " " + term.toString(),
     cap: cap.toString() + "€",
     paybackRateEURTR3X,
@@ -90,6 +92,8 @@ tape("assembles valid params to exclusive metadata", t => {
     blake3256,
     mime,
     cid,
+    network,
+    copyrightYear,
     license: `
 tr3x public performance exclusive license
 
@@ -129,7 +133,7 @@ purchases on the ${network} network.
 tape("blake3256 some data possibly in the browser using wasm", t => {
   t.same(
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
-    "d3d8a505c0ef238d3f2701b072caaf20aa936fc8c8ad51dff35963a5b4719240"
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
   )
 
   t.end()

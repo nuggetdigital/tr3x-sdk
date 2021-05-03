@@ -54,13 +54,20 @@ export default {
       throw TypeError("payee must match the ethereum address format")
     }
     return {
+      artist,
+      title,
       // IPFS content identifier of the track
       cid,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
-      title,
+      // content type for convenience, extendability & browsers
       mime,
-      artist,
+      // minimum STYC price
+      price: price.toString() + "STYC",
+      // 4 now just a moonbeam address
+      payee,
+      network,
+      copyrightYear,
       license: `
 tr3x public performance exclusive license
 
@@ -77,11 +84,7 @@ explicitely accrediting ${artist} as the creator of "${title}".
 
 Claims of this particular license must be verified against their respective 
 purchases on the ${network} network.
-`.trim(),
-      // minimum STYC price
-      price: price.toString() + "STYC",
-      // 4 now just a moonbeam address
-      payee
+`.trim()
     }
   },
   lease({
@@ -137,13 +140,26 @@ purchases on the ${network} network.
       throw TypeError("paybackRateEURTR3X must be a float gt 0")
     }
     return {
+      artist,
+      title,
       // IPFS content identifier of the track
       cid,
       // BLAKE3 256-bit hash digest of the track
       blake3256,
-      title,
+      // content type for convenience, extendability & browsers
       mime,
-      artist,
+      // minimum STYC price
+      price: price.toString() + "STYC",
+      // 4 now just a moonbeam address
+      payee,
+      // payback exchange rate for lease violations
+      paybackRateEURTR3X,
+      // ~lease validity period - expiry date expressed as finalized block count
+      term: network + " " + term.toString(),
+      // maximum permitted EUR profits from public performances
+      cap: cap.toString() + "€",
+      network,
+      copyrightYear,
       license: `
 tr3x public performance lease license
 
@@ -166,17 +182,7 @@ explicitely accrediting ${artist} as the creator of "${title}".
 
 Claims of this license must be prooved using tr3x purchase transactions on 
 the ${network} network.
-`.trim(),
-      // minimum STYC price
-      price: price.toString() + "STYC",
-      // 4 now just a moonbeam address
-      payee,
-      // payback exchange rate for lease violations
-      paybackRateEURTR3X,
-      // ~lease validity period - expiry date expressed as finalized block number
-      term: network + " " + term.toString(),
-      // maximum permitted EUR profits from public performances
-      cap: cap.toString() + "€"
+`.trim()
     }
   }
 }
