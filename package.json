@@ -28,6 +28,6 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#v0.2.0"
+    "blake3-hash-wasm": "nuggetdigital/blake3-hash-wasm#v0.3.1"
   }
 }

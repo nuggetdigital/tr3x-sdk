@@ -1,5 +1,5 @@
 import tape from "tape"
-import { metadata, blake3 } from "./index.js"
+import { metadata, blake3, blake3hash256hex } from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -131,7 +131,7 @@ purchases on the ${network} network.
 })
 
 tape("blake3256 some data possibly in the browser using wasm", async t => {
-  const blake3hash256hex = await blake3()
+  await blake3()
 
   t.same(
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
