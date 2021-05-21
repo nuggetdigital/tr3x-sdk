@@ -1,6 +1,6 @@
 import _metadata from "./metadata.js"
 // import _initIpfs from "./ipfs.js"
-import { init, hash256hex } from "blake3-wasm-sync"
+import { init, hash256hex } from "blake3-hash-wasm"
 
 export const metadata = _metadata
 // export const initIpfs = _initIpfs
