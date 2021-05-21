@@ -4,7 +4,7 @@ export default function init(baseUrl) {
     async add(buf) {
       const formdata = new FormData()
       formdata.append(
-        "file",
+        "path",
         new Blob([buf], { type: "application/octet-stream" })
       )
       let res = await fetch(
@@ -15,7 +15,7 @@ export default function init(baseUrl) {
         }
       )
       if (res.status !== 200) {
-        throw Error(res.statusText)
+        throw Error(`${res.status} ${res.statusText} - ${await res.text()}`)
       }
       res = await res.json()
       return res.Hash
@@ -23,7 +23,7 @@ export default function init(baseUrl) {
     async cat(cid) {
       const res = await fetch(`${baseUrl}/cat?arg=${cid}`, { method: "POST" })
       if (res.status !== 200) {
-        throw Error(res.statusText)
+        throw Error(`${res.status} ${res.statusText} - ${await res.text()}`)
       }
       const arrBuf = await res.arrayBuffer()
       return new Uint8Array(arrBuf)
