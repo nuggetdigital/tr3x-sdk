@@ -28,9 +28,6 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "@babel/core": "7.13.16",
-    "@babel/register": "7.13.16",
-    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#v0.1.0",
-    "ipfs-core": "0.5.4"
+    "blake3-wasm-sync": "nuggetdigital/blake3-wasm-sync#v0.2.0"
   }
 }

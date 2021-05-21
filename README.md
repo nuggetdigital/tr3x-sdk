@@ -7,7 +7,7 @@ tr3x core utils
 ## API
 
 ``` ts
-export function blake3hash256hex(msg: Uint8Array): string;
+export async function blake3(): (data: Uint8Array) => string;
 
 export const metadata = {
   exclusive(params: {
@@ -62,8 +62,9 @@ export const metadata = {
   }
 }
 
-export function initIpfs(): Promise<{
+// TODO
+export const ipfspinr = {
   add(buf: Uint8Array): Promise <{ cid: string }>;
   cat(cid: string): Promise<Uint8Array>;
-}>;
+};
 ```

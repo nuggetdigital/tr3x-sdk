@@ -1,5 +1,5 @@
 import tape from "tape"
-import { metadata, initIpfs, blake3hash256hex } from "./index.js"
+import { metadata, blake3 } from "./index.js"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -130,28 +130,28 @@ purchases on the ${network} network.
   t.end()
 })
 
-tape("blake3256 some data possibly in the browser using wasm", t => {
+tape("blake3256 some data possibly in the browser using wasm", async t => {
+  const blake3hash256hex = await blake3()
+
   t.same(
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
     "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
   )
-
-  t.end()
 })
 
-// WORKS BUT HANGS
-tape.skip("ipfs add & cat", async t => {
-  const ipfs = await initIpfs()
+// // WORKS BUT HANGS
+// tape.skip("ipfs add & cat", async t => {
+//   const ipfs = await initIpfs()
 
-  const file = "fraud world"
+//   const file = "fraud world"
 
-  const res = await ipfs.add(file)
+//   const res = await ipfs.add(file)
 
-  t.ok(res.cid)
+//   t.ok(res.cid)
 
-  const back = await ipfs.cat(res.cid, "utf8")
+//   const back = await ipfs.cat(res.cid, "utf8")
 
-  t.same(Buffer.from(back).toString(), file)
+//   t.same(Buffer.from(back).toString(), file)
 
-  ipfs.kill(t.end)
-})
+//   t.end
+// })
