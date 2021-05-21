@@ -1,5 +1,6 @@
 import tape from "tape"
-import { metadata, blake3, blake3hash256hex } from "./index.js"
+import { metadata, blake3, blake3hash256hex, initIpfs } from "./index.js"
+import fetch from "node-fetch"
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -139,19 +140,19 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
   )
 })
 
-// // WORKS BUT HANGS
-// tape.skip("ipfs add & cat", async t => {
-//   const ipfs = await initIpfs()
+// DIRTY SIDE EFFECTS
+tape("ipfs add & cat", async t => {
+  const ipfs = initIpfs("http://ipfs-pinr-load-balancer-575575608.us-east-1.elb.amazonaws.com/api/v0/")
 
-//   const file = "fraud world"
+  const ufo = "fraud world"
 
-//   const res = await ipfs.add(file)
+  const buf = new TextEncoder().encode(ufo)
 
-//   t.ok(res.cid)
+  const cid = await ipfs.add(buf)
+  console.log("[DEBUG] cid", cid)
+  t.ok(cid)
 
-//   const back = await ipfs.cat(res.cid, "utf8")
-
-//   t.same(Buffer.from(back).toString(), file)
-
-//   t.end
-// })
+  const back = await ipfs.cat(cid)
+  console.log("[DEBUG] back", back)
+  t.same(new TextDecoder().decode(back), ufo)
+})

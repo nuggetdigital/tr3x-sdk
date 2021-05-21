@@ -64,9 +64,9 @@ export const metadata = {
   }
 }
 
-// TODO
-export const ipfspinr = {
-  add(buf: Uint8Array): Promise <{ cid: string }>;
+/// baseUrl should follow format: $protocol://$albDomain/api/$apiVersion
+export function initIpfs(baseUrl: string): {
+  add(buf: Uint8Array): Promise<string>;
   cat(cid: string): Promise<Uint8Array>;
-};
+}
 ```
