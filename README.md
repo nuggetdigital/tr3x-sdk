@@ -7,7 +7,9 @@ tr3x core utils
 ## API
 
 ``` ts
-export async function blake3(): (data: Uint8Array) => string;
+export async function blake3(): (msg: Uint8Array) => string;
+
+export function blake3hash256hex(msg: Uint8Array) => string;
 
 export const metadata = {
   exclusive(params: {
