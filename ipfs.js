@@ -14,11 +14,17 @@ export default function init(baseUrl) {
           body: formdata
         }
       )
+      if (res.status !== 200) {
+        throw Error(res.statusText)
+      }
       res = await res.json()
       return res.Hash
     },
     async cat(cid) {
       const res = await fetch(`${baseUrl}/cat?arg=${cid}`, { method: "POST" })
+      if (res.status !== 200) {
+        throw Error(res.statusText)
+      }
       const arrBuf = await res.arrayBuffer()
       return new Uint8Array(arrBuf)
     }

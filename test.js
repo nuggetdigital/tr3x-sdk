@@ -1,6 +1,12 @@
 import tape from "tape"
 import { metadata, blake3, blake3hash256hex, initIpfs } from "./index.js"
 import fetch from "node-fetch"
+import { FormData } from "formdata-node"
+import Blob from "fetch-blob"
+
+globalThis.fetch = fetch
+globalThis.FormData = FormData
+globalThis.Blob = Blob
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
