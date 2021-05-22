@@ -147,6 +147,7 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
 })
 
 // DIRTY SIDE EFFECTS
+// TODO: run this in a browser to get proper multipart formdata boundaries
 tape("ipfs add & cat", async t => {
   const ipfs = initIpfs("http://ipfs-pinr-load-balancer-575575608.us-east-1.elb.amazonaws.com/api/v0/")
 

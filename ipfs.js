@@ -1,17 +1,24 @@
+import { createRequire } from "module"
+const version = createRequire(import.meta.url)("./package.json").version
+
 export default function init(baseUrl) {
   baseUrl = baseUrl.replace(/\/+$/, "")
   return {
     async add(buf) {
       const formdata = new FormData()
       formdata.append(
-        "path",
+        "file",
         new Blob([buf], { type: "application/octet-stream" })
       )
       let res = await fetch(
         `${baseUrl}/add?cid-version=1&hash=blake2b-256&pin=false`,
         {
           method: "POST",
-          body: formdata
+          body: formdata,
+          headers: {
+            "content-length": buf.byteLength,
+            // "user-agent": `tr3x-util ${version}`
+          }
         }
       )
       if (res.status !== 200) {
