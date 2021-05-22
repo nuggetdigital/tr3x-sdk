@@ -1,6 +1,3 @@
-import { createRequire } from "module"
-const version = createRequire(import.meta.url)("./package.json").version
-
 export default function init(baseUrl) {
   baseUrl = baseUrl.replace(/\/+$/, "")
   return {
@@ -14,11 +11,7 @@ export default function init(baseUrl) {
         `${baseUrl}/add?cid-version=1&hash=blake2b-256&pin=false`,
         {
           method: "POST",
-          body: formdata,
-          headers: {
-            "content-length": buf.byteLength,
-            // "user-agent": `tr3x-util ${version}`
-          }
+          body: formdata
         }
       )
       if (res.status !== 200) {
