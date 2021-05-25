@@ -1,12 +1,10 @@
 import tape from "tape"
 import { metadata, blake3, blake3hash256hex, initIpfs } from "./index.js"
 import fetch from "node-fetch"
-import { FormData } from "formdata-node"
-import Blob from "fetch-blob"
+import FormData from "form-data"
 
 globalThis.fetch = fetch
 globalThis.FormData = FormData
-globalThis.Blob = Blob
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -147,19 +145,18 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
 })
 
 // DIRTY SIDE EFFECTS
-// TODO: run this in a browser to get proper multipart formdata boundaries
 tape("ipfs add & cat", async t => {
-  const ipfs = initIpfs("http://ipfs-pinr-load-balancer-575575608.us-east-1.elb.amazonaws.com/api/v0/")
+  const ipfs = initIpfs(`http://${process.env.ALB}/api/v0/`)
 
   const ufo = "fraud world"
 
   const buf = new TextEncoder().encode(ufo)
 
   const cid = await ipfs.add(buf)
-  console.log("[DEBUG] cid", cid)
+
   t.ok(cid)
 
   const back = await ipfs.cat(cid)
-  console.log("[DEBUG] back", back)
-  t.same(new TextDecoder().decode(back), ufo)
+
+  t.equal(new TextDecoder().decode(back), ufo)
 })
