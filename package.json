@@ -29,7 +29,7 @@
     "tape": "5.2.1"
   },
   "dependencies": {
-    "blake3-hash-wasm": "nuggetdigital/blake3-hash-wasm#v0.3.1",
+    "blake3-hash-wasm": "github:nuggetdigital/blake3-hash-wasm#v0.3.2",
     "buffer": "6.0.3",
     "form-data": "4.0.0"
   }
