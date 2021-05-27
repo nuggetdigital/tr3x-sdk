@@ -38,7 +38,7 @@ export default {
     if (typeof price !== "bigint" || !(price > 0n)) {
       throw TypeError("price must be a bigint gt 0")
     }
-    if (!/^[a-f0-9]{64}$/.test(blake3256)) {
+    if (!/^(0x)?[a-f0-9]{64}$/.test(blake3256)) {
       throw TypeError("blake3256 must be a hex string")
     }
     if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
@@ -59,7 +59,7 @@ export default {
       // IPFS content identifier of the track
       cid,
       // BLAKE3 256-bit hash digest of the track
-      blake3256,
+      blake3256: blake3256.startsWith("0x") ? blake3256 : "0x" + blake3256,
       // content type for convenience, extendability & browsers
       mime,
       // minimum STYC price
@@ -107,7 +107,7 @@ Claims of this particular license must be verified against their respective purc
     if (typeof price !== "bigint" || !(price > 0n)) {
       throw TypeError("price must be a bigint gt 0")
     }
-    if (!/^[a-f0-9]{64}$/.test(blake3256)) {
+    if (!/^(0x)?[a-f0-9]{64}$/.test(blake3256)) {
       throw TypeError("blake3256 must be a hex string")
     }
     if (!/^[0-9]{4}$/.test(copyrightYear?.toString())) {
@@ -137,7 +137,7 @@ Claims of this particular license must be verified against their respective purc
       // IPFS content identifier of the track
       cid,
       // BLAKE3 256-bit hash digest of the track
-      blake3256,
+      blake3256: blake3256.startsWith("0x") ? blake3256 : "0x" + blake3256,
       // content type for convenience, extendability & browsers
       mime,
       // minimum STYC price
@@ -147,7 +147,7 @@ Claims of this particular license must be verified against their respective purc
       // payback exchange rate for lease violations
       paybackRateEURTR3X,
       // ~lease validity period - expiry date expressed as finalized block count
-      term: network + " " + term.toString(),
+      term: term.toString() + " finalized blocks",
       // maximum permitted EUR profits from public performances
       cap: cap.toString() + "€",
       network,

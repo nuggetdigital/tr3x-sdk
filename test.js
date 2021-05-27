@@ -25,12 +25,12 @@ tape("assembles valid params to lease metadata", t => {
     title,
     price: price.toString() + "STYC",
     payee,
-    blake3256: "deadbeef".repeat(8),
+    blake3256: "0x" + "deadbeef".repeat(8),
     mime,
     cid,
     network,
     copyrightYear,
-    term: network + " " + term.toString(),
+    term: term.toString() + " finalized blocks",
     cap: cap.toString() + "€",
     paybackRateEURTR3X,
     license: `
@@ -70,7 +70,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const artist = "tape-artist"
   const title = "tape-title"
   const price = 1000000000n
-  const blake3256 = "deadbeef".repeat(8)
+  const blake3256 = "0x" + "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mp3"
   const cid = "7".repeat(46)
