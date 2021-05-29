@@ -12,6 +12,7 @@ export async function blake3(): (msg: Uint8Array) => string;
 export function blake3hash256hex(msg: Uint8Array) => string;
 
 export const metadata = {
+  /// Validates exclusive license parameters and assembles a metadata doc.
   exclusive(params: {
     artist: string,
     title: string,
@@ -34,6 +35,7 @@ export const metadata = {
     payee: string,
     license: string
   },
+  /// Validates lease license parameters and assembles a metadata doc.
   lease(params: {
     artist: string,
     title: string,
@@ -64,9 +66,20 @@ export const metadata = {
   }
 }
 
-/// baseUrl should follow format: $protocol://$albDomain/api/$apiVersion
+/**
+ * Creates a client connected to given IPFS node(s).
+ * baseUrl should follow format: http(s)://$albDomain/api/v0
+ */
 export function initIpfs(baseUrl: string): {
+  /// Add some data to IPFS.
   add(buf: Uint8Array): Promise<string>;
+  /// Gets some data from IPFS.
   cat(cid: string): Promise<Uint8Array>;
 }
+
+/***
+ * Detects mp3 and wav file formats by their magic numbers.
+ * Fallsback to "application/octet-stream"
+ */
+export function mime(buf: Uint8Array): string 
 ```

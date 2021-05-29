@@ -1,5 +1,5 @@
 import tape from "tape"
-import { metadata, blake3, blake3hash256hex, initIpfs } from "./index.js"
+import { metadata, mime, blake3, blake3hash256hex, initIpfs } from "./index.js"
 import fetch from "node-fetch"
 import FormData from "form-data"
 
@@ -12,7 +12,7 @@ tape("assembles valid params to lease metadata", t => {
   const price = 1000000000n
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
-  const mime = "audio/mp3"
+  const mime = "audio/mpeg"
   const cid = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(40)
@@ -72,7 +72,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const price = 1000000000n
   const blake3256 = "0x" + "deadbeef".repeat(8)
   const copyrightYear = 2021
-  const mime = "audio/mp3"
+  const mime = "audio/mpeg"
   const cid = "7".repeat(46)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(40)
@@ -122,6 +122,11 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
     "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
   )
+})
+
+tape("mime fallback is 'application/octet-stream'", t => {
+  t.equal(mime(new Uint8Array(419)), "application/octet-stream")
+  t.end()
 })
 
 // DIRTY SIDE EFFECTS
