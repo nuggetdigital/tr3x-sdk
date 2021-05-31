@@ -129,6 +129,16 @@ tape("mime fallback is 'application/octet-stream'", t => {
   t.end()
 })
 
+tape("metadata serialization", t => {
+  // NOTE: does not validate just convert a pojo to a buf
+  const buf = metadata.serialize({ fraud: "money" })
+
+  t.true(buf.byteLength > 0)
+  t.equal(buf.constructor.name, "Uint8Array")
+
+  t.end()
+})
+
 // DIRTY SIDE EFFECTS
 tape("ipfs add & cat", async t => {
   const ipfs = initIpfs(`http://${process.env.ALB}/api/v0/`)

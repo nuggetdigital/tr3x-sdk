@@ -67,7 +67,9 @@ export const metadata = {
 }
 
 export const licenseText = {
-    /// Assembles an exclusive license text.
+  /// Serializes any given pojo to a buf.
+  serialize(metadata: Object): Uint8Array;
+  /// Assembles an exclusive license text.
   exclusive(params: {
     artist: string,
     title: string,

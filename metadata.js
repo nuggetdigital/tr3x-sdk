@@ -115,7 +115,12 @@ Claims of this particular license must be verified against their respective purc
   }
 }
 
+const encoder = new TextEncoder()
+
 export default {
+  serialize(metadata) {
+    return encoder.encode(JSON.stringify(metadata))
+  },
   exclusive(params) {
     validateExclusiveParams(params)
 
