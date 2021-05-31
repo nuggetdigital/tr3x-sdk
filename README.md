@@ -66,6 +66,32 @@ export const metadata = {
   }
 }
 
+export const licenseText = {
+    /// Assembles an exclusive license text.
+  exclusive(params: {
+    artist: string,
+    title: string,
+    price: bigint,
+    blake3256: string,
+    copyrightYear: number,
+    network: string,
+    payee: string
+  }, validate: boolean = true): string,
+  /// Assembles a lease license text.
+  lease(params: {
+    artist: string,
+    title: string,
+    price: bigint,
+    blake3256: string,
+    copyrightYear: number,
+    network: string,
+    payee: string,
+    term: bigint,
+    cap: bigint,
+    paybackRateEURTR3X: number
+  }, validate: boolean = true): string
+}
+
 /**
  * Creates a client connected to given IPFS node(s).
  * baseUrl should follow format: http(s)://$albDomain/api/v0

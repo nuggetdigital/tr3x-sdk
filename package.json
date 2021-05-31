@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node ./test.js",
-    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.js'"
+    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts'"
   },
   "repository": {
     "type": "git",

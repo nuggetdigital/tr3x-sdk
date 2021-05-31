@@ -146,7 +146,7 @@ export default {
       payee,
       network,
       copyrightYear,
-      license: licenseText.exclusive(params)
+      license: licenseText.exclusive(params, false)
     }
   },
   lease(params) {
@@ -188,7 +188,7 @@ export default {
       cap: cap.toString() + "€",
       network,
       copyrightYear,
-      license: licenseText.lease(params)
+      license: licenseText.lease(params, false)
     }
   }
 }
