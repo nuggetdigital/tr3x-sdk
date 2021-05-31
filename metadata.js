@@ -6,7 +6,7 @@ const VALID_MIME_TYPES = new Set([
 
 const VALID_NETWORKS = new Set(["Mainnet", "Ropsten", "Moonbeam", "Moonriver"])
 
-function validateExclusiveParams(params) {
+function validateExclusiveParams(params, onlyForLicenseText) {
   if (!VALID_NETWORKS.has(params.network)) {
     throw TypeError(`network must be one of ${[...VALID_NETWORKS].join(", ")}`)
   }
@@ -24,19 +24,21 @@ function validateExclusiveParams(params) {
   }
   if (!/^[0-9]{4}$/.test(params.copyrightYear?.toString())) {
     throw TypeError("copyrightYear must be intlike")
-  }
-  if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
-    throw TypeError("invalid cidv1")
-  }
-  if (!VALID_MIME_TYPES.has(params.mime)) {
-    throw TypeError("invalid mime")
   }
   if (!/^(0x)?[0-9a-fA-F]{40}$/.test(params.payee)) {
     throw TypeError("payee must match the ethereum address format")
   }
+  if (!onlyForLicenseText) {
+    if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
+      throw TypeError("invalid cidv1")
+    }
+    if (!VALID_MIME_TYPES.has(params.mime)) {
+      throw TypeError("invalid mime")
+    }
+  }
 }
 
-function validateLeaseParams(params) {
+function validateLeaseParams(params, onlyForLicenseText) {
   if (!VALID_NETWORKS.has(params.network)) {
     throw TypeError(`network must be one of ${[...VALID_NETWORKS].join(", ")}`)
   }
@@ -54,12 +56,6 @@ function validateLeaseParams(params) {
   }
   if (!/^[0-9]{4}$/.test(params.copyrightYear?.toString())) {
     throw TypeError("copyrightYear must be intlike")
-  }
-  if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
-    throw TypeError("invalid cidv1")
-  }
-  if (!VALID_MIME_TYPES.has(params.mime)) {
-    throw TypeError("invalid mime")
   }
   if (!/^(0x)?[0-9a-fA-F]{40}$/.test(params.payee)) {
     throw TypeError("payee must match the ethereum address format")
@@ -76,50 +72,45 @@ function validateLeaseParams(params) {
   ) {
     throw TypeError("paybackRateEURTR3X must be a float gt 0")
   }
+  if (!onlyForLicenseText) {
+    if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
+      throw TypeError("invalid cidv1")
+    }
+    if (!VALID_MIME_TYPES.has(params.mime)) {
+      throw TypeError("invalid mime")
+    }
+  }
 }
 
 export const licenseText = {
-  lease({
-    artist,
-    title,
-    price,
-    copyrightYear,
-    blake3256,
-    network,
-    payee,
-    term,
-    cap,
-    paybackRateEURTR3X
-  }) {
+  lease(params, validate = true) {
+    if (validate) {
+      validateLeaseParams(params, true)
+    }
     return `
 tr3x public performance lease license
 
-Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${network} network address ${payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public, for a lease term of ${term} finalized blocks on the ${network} network, starting with the block number that the purchase transaction acquiring this license got finalized in.
+Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${params.network} network address ${params.payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public, for a lease term of ${params.term} finalized blocks on the ${params.network} network, starting with the block number that the purchase transaction acquiring this license got finalized in.
 
-Maximum profits off of public performances of the lessee must not excceed ${cap}€, otherwise the lessee must monthly payback 50% of the excess profits to above payee via the marketplace in TR3X at the EUR/TR3X payback rate of ${paybackRateEURTR3X}.
+Maximum profits off of public performances of the lessee must not excceed ${params.cap}€, otherwise the lessee must monthly payback 50% of the excess profits to above payee via the marketplace in TR3X at the EUR/TR3X payback rate of ${params.paybackRateEURTR3X}.
 
-The artist name "${artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artist} as the creator of "${title}".
+The artist name "${params.artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${params.artist} as the creator of "${params.title}".
 
-Claims of this license must be prooved using tr3x purchase transactions on the ${network} network.
+Claims of this license must be prooved using tr3x purchase transactions on the ${params.network} network.
 `.trim()
   },
-  exclusive({
-    artist,
-    title,
-    price,
-    copyrightYear,
-    blake3256,
-    network,
-    payee
-  }) {
+  exclusive(params, validate = true) {
+    if (validate) {
+      validateExclusiveParams(params, true)
+    }
     return `
 tr3x public performance exclusive license
 
-Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${network} network address ${payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public.
+Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${params.network} network address ${params.payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public.
 
-The artist name "${artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artist} as the creator of "${title}".
+The artist name "${params.artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${params.artist} as the creator of "${params.title}".
 
-Claims of this particular license must be verified against their respective purchases on the ${network} network.
+Claims of this particular license must be verified against their respective purchases on the ${params.network} network.
 `.trim()
   }
 }
