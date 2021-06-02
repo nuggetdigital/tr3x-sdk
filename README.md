@@ -4,6 +4,10 @@
 
 tr3x core utils
 
+## qs?
+
++ include contract address in metadata ? most probly yes
+
 ## API
 
 ``` ts
