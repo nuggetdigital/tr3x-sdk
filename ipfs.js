@@ -15,7 +15,6 @@ export default function init(baseUrl) {
         {
           method: "POST",
           body: formdata,
-          headers: formdata.getHeaders()
         }
       )
       if (res.status !== 200) {
