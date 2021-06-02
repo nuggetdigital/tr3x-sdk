@@ -12,6 +12,8 @@ export async function blake3(): (msg: Uint8Array) => string;
 export function blake3hash256hex(msg: Uint8Array) => string;
 
 export const metadata = {
+  /// Serializes any given pojo to a buf.
+  serialize(metadata: Object): Uint8Array;
   /// Validates exclusive license parameters and assembles a metadata doc.
   exclusive(params: {
     artist: string,
@@ -21,7 +23,7 @@ export const metadata = {
     copyrightYear: number,
     mime: string,
     cid: string,
-    network: string,
+    evmChainId: number,
     payee: string
   }): {
     artist: string,
@@ -31,7 +33,7 @@ export const metadata = {
     copyrightYear: number,
     mime: string,
     cid: string,
-    network: string,
+    evmChainId: number,
     payee: string,
     license: string
   },
@@ -44,7 +46,7 @@ export const metadata = {
     copyrightYear: number,
     mime: string,
     cid: string,
-    network: string,
+    evmChainId: number,
     payee: string,
     term: bigint,
     cap: bigint,
@@ -57,7 +59,7 @@ export const metadata = {
     copyrightYear: number,
     mime: string,
     cid: string,
-    network: string,
+    evmChainId: number,
     payee: string,
     license: string,
     term: string,
@@ -67,8 +69,6 @@ export const metadata = {
 }
 
 export const licenseText = {
-  /// Serializes any given pojo to a buf.
-  serialize(metadata: Object): Uint8Array;
   /// Assembles an exclusive license text.
   exclusive(params: {
     artist: string,
@@ -76,7 +76,7 @@ export const licenseText = {
     price: bigint,
     blake3256: string,
     copyrightYear: number,
-    network: string,
+    evmChainId: number,
     payee: string
   }, validate: boolean = true): string,
   /// Assembles a lease license text.
@@ -86,7 +86,7 @@ export const licenseText = {
     price: bigint,
     blake3256: string,
     copyrightYear: number,
-    network: string,
+    evmChainId: number,
     payee: string,
     term: bigint,
     cap: bigint,
@@ -109,5 +109,15 @@ export function initIpfs(baseUrl: string): {
  * Detects mp3 and wav file formats by their magic numbers.
  * Fallsback to "application/octet-stream"
  */
-export function mime(buf: Uint8Array): string 
+export function mime(buf: Uint8Array): string
+
+export const SUPPORTED_CHAINS = new Set([ 1, 5, 1285 ])
+
+export const evmChainIdToName = Object.freeze({
+  1: "Mainnet",
+  5: "Goerli",
+  1285: "Moonriver"
+})
+
+
 ```

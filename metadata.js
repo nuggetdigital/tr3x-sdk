@@ -4,11 +4,11 @@ const VALID_MIME_TYPES = new Set([
   "application/octet-stream"
 ])
 
-const VALID_NETWORKS = new Set(["Mainnet", "Ropsten", "Moonbeam", "Moonriver"])
+import {SUPPORTED_CHAINS, evmChainIdToName} from "./constants.js"
 
 function validateExclusiveParams(params, onlyForLicenseText) {
-  if (!VALID_NETWORKS.has(params.network)) {
-    throw TypeError(`network must be one of ${[...VALID_NETWORKS].join(", ")}`)
+  if (!SUPPORTED_CHAINS.has(params.evmChainId)) {
+    throw TypeError(`chain must be one of ${[...SUPPORTED_CHAINS].join(", ")}`)
   }
   if (typeof params.artist !== "string" || !params.artist.length) {
     throw TypeError("artist must be a string")
@@ -39,8 +39,8 @@ function validateExclusiveParams(params, onlyForLicenseText) {
 }
 
 function validateLeaseParams(params, onlyForLicenseText) {
-  if (!VALID_NETWORKS.has(params.network)) {
-    throw TypeError(`network must be one of ${[...VALID_NETWORKS].join(", ")}`)
+  if (!SUPPORTED_CHAINS.has(params.evmChainId)) {
+    throw TypeError(`chain must be one of ${[...SUPPORTED_CHAINS].join(", ")}`)
   }
   if (typeof params.artist !== "string" || !params.artist.length) {
     throw TypeError("artist must be a string")
@@ -90,13 +90,13 @@ export const licenseText = {
     return `
 tr3x public performance lease license
 
-Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${params.network} network address ${params.payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public, for a lease term of ${params.term} finalized blocks on the ${params.network} network, starting with the block number that the purchase transaction acquiring this license got finalized in.
+Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${evmChainIdToName[params.evmChainId]} chain address ${params.payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public, for a lease term of ${params.term} finalized blocks on the ${evmChainIdToName[params.evmChainId]} chain, starting with the block number that the purchase transaction acquiring this license got finalized in.
 
 Maximum profits off of public performances of the lessee must not excceed ${params.cap}€, otherwise the lessee must monthly payback 50% of the excess profits to above payee via the marketplace in TR3X at the EUR/TR3X payback rate of ${params.paybackRateEURTR3X}.
 
 The artist name "${params.artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${params.artist} as the creator of "${params.title}".
 
-Claims of this license must be prooved using tr3x purchase transactions on the ${params.network} network.
+Claims of this license must be prooved using tr3x purchase transactions on the ${evmChainIdToName[params.evmChainId]} chain.
 `.trim()
   },
   exclusive(params, validate = true) {
@@ -106,11 +106,11 @@ Claims of this license must be prooved using tr3x purchase transactions on the $
     return `
 tr3x public performance exclusive license
 
-Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${params.network} network address ${params.payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public.
+Permission is hereby granted, at a charge of ${params.price}STYC (TR3X), payable to ${evmChainIdToName[params.evmChainId]} chain address ${params.payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${params.title}", © ${params.copyrightYear} ${params.artist}, identified by its BLAKE3 256-bit hash digest 0x${params.blake3256}, in public.
 
 The artist name "${params.artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${params.artist} as the creator of "${params.title}".
 
-Claims of this particular license must be verified against their respective purchases on the ${params.network} network.
+Claims of this particular license must be verified against their respective purchases on the ${evmChainIdToName[params.evmChainId]} chain.
 `.trim()
   }
 }
@@ -132,7 +132,7 @@ export default {
       copyrightYear,
       mime,
       cid,
-      network,
+      evmChainId,
       payee
     } = params
 
@@ -149,7 +149,7 @@ export default {
       price: price.toString() + "STYC",
       // 4 now just a moonbeam address
       payee,
-      network,
+      evmChainId,
       copyrightYear,
       license: licenseText.exclusive(params, false)
     }
@@ -165,7 +165,7 @@ export default {
       copyrightYear,
       mime,
       cid,
-      network,
+      evmChainId,
       payee,
       term,
       cap,
@@ -191,7 +191,7 @@ export default {
       term: term.toString() + " finalized blocks",
       // maximum permitted EUR profits from public performances
       cap: cap.toString() + "€",
-      network,
+      evmChainId,
       copyrightYear,
       license: licenseText.lease(params, false)
     }
