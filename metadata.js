@@ -29,7 +29,7 @@ function validateExclusiveParams(params, onlyForLicenseText) {
     throw TypeError("payee must match the ethereum address format")
   }
   if (!onlyForLicenseText) {
-    if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
+    if (!/^[a-z2-7]{32,}$/.test(params.cid) ) {
       throw TypeError("invalid cidv1")
     }
     if (!VALID_MIME_TYPES.has(params.mime)) {
@@ -73,7 +73,7 @@ function validateLeaseParams(params, onlyForLicenseText) {
     throw TypeError("paybackRateEURTR3X must be a float gt 0")
   }
   if (!onlyForLicenseText) {
-    if (!/^[a-z2-7]+=*$/.test(params.cid) || params.cid.length !== 46) {
+    if (!/^[a-z2-7]{32,}$/.test(params.cid)) {
       throw TypeError("invalid cidv1")
     }
     if (!VALID_MIME_TYPES.has(params.mime)) {

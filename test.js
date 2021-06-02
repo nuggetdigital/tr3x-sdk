@@ -11,7 +11,7 @@ tape("assembles valid params to lease metadata", t => {
   const blake3256 = "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mpeg"
-  const cid = "7".repeat(46)
+  const cid = "7".repeat(62)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(40)
   const term = 100419n
@@ -71,7 +71,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const blake3256 = "0x" + "deadbeef".repeat(8)
   const copyrightYear = 2021
   const mime = "audio/mpeg"
-  const cid = "7".repeat(46)
+  const cid = "7".repeat(62)
   const network = "Moonbeam"
   const payee = "0x" + "0".repeat(40)
 
