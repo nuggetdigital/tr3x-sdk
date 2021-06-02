@@ -1,10 +1,8 @@
 import tape from "tape"
 import { metadata, mime, blake3, blake3hash256hex, initIpfs } from "./index.js"
 import fetch from "node-fetch"
-import FormData from "form-data"
 
 globalThis.fetch = fetch
-globalThis.FormData = FormData
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"

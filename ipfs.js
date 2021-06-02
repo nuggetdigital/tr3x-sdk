@@ -1,6 +1,9 @@
 import FormData from "form-data"
 import { Buffer } from "buffer"
 
+globalThis.Buffer = Buffer
+globalThis.FormData = FormData
+
 export default function init(baseUrl) {
   baseUrl = baseUrl.replace(/\/+$/, "")
   return {
