@@ -110,10 +110,14 @@ Claims of this particular license must be verified against their respective purc
 }
 
 const encoder = new TextEncoder()
+const decoder = new TextDecoder()
 
 export default {
   serialize(metadata) {
     return encoder.encode(JSON.stringify(metadata))
+  },
+  deserialize(buf) {
+    return JSON.parse(decoder.decode(buf))
   },
   exclusive(params) {
     validateExclusiveParams(params)

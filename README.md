@@ -17,7 +17,9 @@ export function blake3hash256hex(msg: Uint8Array) => string;
 
 export const metadata = {
   /// Serializes any given pojo to a buf.
-  serialize(metadata: Object): Uint8Array;
+  serialize(metadata: Object): Uint8Array
+  /// Deserializes given buf to a pojo.
+  deserialize(buf: Uint8Array): Object
   /// Validates exclusive license parameters and assembles a metadata doc.
   exclusive(params: {
     artist: string,
