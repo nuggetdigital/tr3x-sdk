@@ -1,10 +1,4 @@
-const VALID_MIME_TYPES = new Set([
-  "audio/wav",
-  "audio/mpeg",
-  "application/octet-stream"
-])
-
-import {SUPPORTED_CHAINS, evmChainIdToName} from "./constants.js"
+import {SUPPORTED_CHAINS, evmChainIdToName, VALID_MIME_TYPES} from "./constants.js"
 
 function validateExclusiveParams(params, onlyForLicenseText) {
   if (!SUPPORTED_CHAINS.has(params.evmChainId)) {
