@@ -1,20 +1,18 @@
 import FormData from "form-data"
 import { Buffer } from "buffer"
 
-globalThis.Buffer = Buffer
-globalThis.FormData = FormData
-
 export default function init(baseUrl) {
   baseUrl = baseUrl.replace(/\/+$/, "")
   return {
     async add(buf) {
-      const formdata = new FormData(/*{ maxDataSize: 5e8 }*/) // 500 MB
+      const formdata = new FormData()
       formdata.append("file", Buffer.from(buf))
       let res = await fetch(
         `${baseUrl}/add?cid-version=1&hash=blake2b-256&pin=false`,
         {
           method: "POST",
           body: formdata,
+          headers: formdata?.getHeaders()
         }
       )
       if (res.status !== 200) {
