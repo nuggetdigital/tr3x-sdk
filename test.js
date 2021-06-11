@@ -1,5 +1,12 @@
 import tape from "tape"
-import { metadata, mime, blake3, blake3hash256hex, initIpfs, evmChainIdToName } from "./index.js"
+import {
+  metadata,
+  mime,
+  blake3,
+  blake3hash256hex,
+  initIpfs,
+  evmChainIdToName
+} from "./index.js"
 import fetch from "node-fetch"
 
 globalThis.fetch = fetch
@@ -12,7 +19,7 @@ tape("assembles valid params to lease metadata", t => {
   const copyrightYear = 2021
   const mime = "audio/mpeg"
   const cid = "7".repeat(62)
-  const evmChainId= 5
+  const evmChainId = 5
   const payee = "0x" + "0".repeat(40)
   const term = 100419n
   const cap = 25000n
@@ -72,7 +79,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const copyrightYear = 2021
   const mime = "audio/mpeg"
   const cid = "7".repeat(62)
-  const evmChainId= 5
+  const evmChainId = 5
   const payee = "0x" + "0".repeat(40)
 
   const expected = {
@@ -139,7 +146,10 @@ tape("metadata serialization", t => {
 
 // DIRTY SIDE EFFECTS
 tape("ipfs add & cat", async t => {
-  const ipfs = initIpfs(`http://${process.env.ALB}/api/v0/`)
+  const ipfs = initIpfs(
+    `http://${process.env.ALB_DOMAIN_NAME}`,
+    `https://${process.env.DIST_DOMAIN_NAME}`
+  )
 
   const ufo = "fraud world"
 

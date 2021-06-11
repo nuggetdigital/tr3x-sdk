@@ -17,4 +17,4 @@ jobs:
           node-version: "16"
       - run: |
           npm ci
-          ALB=${{ secrets.ALB }} npm t
+          ALB_DOMAIN_NAME=${{ secrets.ALB_DOMAIN_NAME }} DIST_DOMAIN_NAME=${{ secrets.DIST_DOMAIN_NAME }} npm t

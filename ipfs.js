@@ -1,20 +1,16 @@
-import FormData from "form-data"
-import { Buffer } from "buffer"
+const NAIVE_CHECK = /^http(:?s)?:\/\/\S+\.\S+/
 
-export default function init(baseUrl) {
-  baseUrl = baseUrl.replace(/\/+$/, "")
+export default function init(albBaseURL, distBaseURL) {
+  if (!NAIVE_CHECK.test(albBaseURL)) {
+    throw TypeError("invalid alb base url")
+  }
+  if (!NAIVE_CHECK.test(distBaseURL)) {
+    throw TypeError("invalid dist base url")
+  }
+  distBaseURL = distBaseURL.replace(/\/+$/, "")
   return {
     async add(buf) {
-      const formdata = new FormData()
-      formdata.append("file", Buffer.from(buf))
-      let res = await fetch(
-        `${baseUrl}/add?cid-version=1&hash=blake2b-256&pin=false`,
-        {
-          method: "POST",
-          body: formdata,
-          headers: formdata?.getHeaders()
-        }
-      )
+      let res = await fetch(albBaseURL, { method: "POST", body: buf })
       if (res.status !== 200) {
         throw Error(`${res.status} ${res.statusText} - ${await res.text()}`)
       }
@@ -22,7 +18,7 @@ export default function init(baseUrl) {
       return res.Hash
     },
     async cat(cid) {
-      const res = await fetch(`${baseUrl}/cat?arg=${cid}`, { method: "POST" })
+      const res = await fetch(`${distBaseURL}/${cid}`)
       if (res.status !== 200) {
         throw Error(`${res.status} ${res.statusText} - ${await res.text()}`)
       }

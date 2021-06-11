@@ -1,4 +1,4 @@
-export const SUPPORTED_CHAINS = new Set([1,5,1285])
+export const SUPPORTED_CHAINS = new Set([1, 5, 1285])
 
 export const evmChainIdToName = Object.freeze({
   1: "Mainnet",
@@ -7,7 +7,7 @@ export const evmChainIdToName = Object.freeze({
 })
 
 export const VALID_MIME_TYPES = new Set([
-    "audio/wav",
-    "audio/mpeg",
-    "application/octet-stream"
-  ])
+  "audio/wav",
+  "audio/mpeg",
+  "application/octet-stream"
+])

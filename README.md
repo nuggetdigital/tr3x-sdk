@@ -102,9 +102,10 @@ export const licenseText = {
 
 /**
  * Creates a client connected to given IPFS node(s).
- * baseUrl should follow format: http(s)://$albDomain/api/v0
+ * albBaseURL should follow format: http(s)://$albDomain
+ * distBaseURL should follow format: https://$distDomain
  */
-export function initIpfs(baseUrl: string): {
+export function initIpfs(albBaseURL: string, distBaseURL: string): {
   /// Add some data to IPFS.
   add(buf: Uint8Array): Promise<string>;
   /// Gets some data from IPFS.
