@@ -8,7 +8,8 @@ function isMp3(buf) {
 }
 
 function isWav(buf) {
-  buf.length > 11 &&
+  return (
+    buf.length > 11 &&
     buf[0] == 0x52 &&
     buf[1] == 0x49 &&
     buf[2] == 0x46 &&
@@ -17,6 +18,7 @@ function isWav(buf) {
     buf[9] == 0x41 &&
     buf[10] == 0x56 &&
     buf[11] == 0x45
+  )
 }
 
 function isOgg(buf) {

@@ -132,7 +132,9 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
 })
 
 tape("detects a wav file", t => {
-  t.equal(mime(readFileSync("./celesta.wav")), "audio/x-wav", "wav")
+  const buf = readFileSync("./celesta.wav")
+  console.log(buf.slice(0, 12))
+  t.equal(mime(buf), "audio/x-wav", "wav")
   t.end()
 })
 
