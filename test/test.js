@@ -7,10 +7,14 @@ import {
   blake3hash256hex,
   initIpfs,
   evmChainIdToName
-} from "./index.js"
+} from "../index.js"
 import fetch from "node-fetch"
+import { createRequire } from "module"
+
+const require = createRequire(import.meta.url)
 
 globalThis.fetch = fetch
+console.log(process.cwd())
 
 tape("assembles valid params to lease metadata", t => {
   const artist = "tape-artist"
@@ -132,24 +136,29 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
 })
 
 tape("detects a wav file", t => {
-  const buf = readFileSync("./celesta.wav")
-  console.log(buf.slice(0, 12))
+  const buf = readFileSync(require.resolve("./celesta.wav"))
   t.equal(mime(buf), "audio/x-wav", "wav")
   t.end()
 })
 
 tape("detects an ogg file", t => {
-  t.equal(mime(readFileSync("./celesta.ogg")), "audio/ogg", "ogg")
+  const buf = readFileSync(require.resolve("./celesta.ogg"))
+  t.equal(mime(buf), "audio/ogg", "ogg")
   t.end()
 })
 
 tape("detects a mp3 file", t => {
-  t.equal(mime(readFileSync("./celesta.mp3")), "audio/mpeg", "mp3")
+  const buf = readFileSync(require.resolve("./celesta.mp3"))
+  t.equal(mime(buf), "audio/mpeg", "mp3")
   t.end()
 })
 
 tape("mime fallback is 'application/octet-stream'", t => {
-  t.equal(mime(new Uint8Array(419)), "application/octet-stream", "bin")
+  t.equal(
+    mime(new Uint8Array([65, 67, 65, 66])),
+    "application/octet-stream",
+    "bin"
+  )
   t.end()
 })
 

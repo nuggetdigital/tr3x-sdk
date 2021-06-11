@@ -5,8 +5,8 @@
   "description": "tr3x core util funcs",
   "main": "index.js",
   "scripts": {
-    "test": "node ./test.js",
-    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.js'"
+    "test": "node ./test/test.js",
+    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.js' './*/*.js'"
   },
   "repository": {
     "type": "git",
