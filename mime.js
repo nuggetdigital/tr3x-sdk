@@ -21,8 +21,13 @@ function isWav(buf) {
   )
 }
 
+function isOgg(buf) {
+  return false
+}
+
 export default function mime(buf) {
   if (isMp3(buf)) return "audio/mpeg"
-  if (isWav(buf)) return "audio/wav"
+  if (isWav(buf)) return "audio/x-wav"
+  if (isOgg(buf)) return "audio/ogg"
   return "application/octet-stream"
 }

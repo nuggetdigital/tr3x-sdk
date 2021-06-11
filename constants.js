@@ -7,7 +7,8 @@ export const evmChainIdToName = Object.freeze({
 })
 
 export const VALID_MIME_TYPES = new Set([
-  "audio/wav",
+  "audio/x-wav",
   "audio/mpeg",
+  "audio/ogg",
   "application/octet-stream"
 ])
