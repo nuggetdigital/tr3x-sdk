@@ -1,3 +1,4 @@
+import { readFileSync } from "fs"
 import tape from "tape"
 import {
   metadata,
@@ -125,21 +126,43 @@ tape("blake3256 some data possibly in the browser using wasm", async t => {
 
   t.same(
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
-    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420"
+    "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
+    "blake3hash256hex"
   )
 })
 
-tape("mime fallback is 'application/octet-stream'", t => {
-  t.equal(mime(new Uint8Array(419)), "application/octet-stream")
+tape("detects a wav file", t => {
+  t.equal(mime(readFileSync("./celesta.wav")), "audio/x-wav", "wav")
   t.end()
 })
 
-tape("metadata serialization", t => {
-  // NOTE: does not validate just convert a pojo to a buf
-  const buf = metadata.serialize({ fraud: "money" })
+tape("detects an ogg file", t => {
+  t.equal(mime(readFileSync("./celesta.ogg")), "audio/ogg", "ogg")
+  t.end()
+})
 
-  t.true(buf.byteLength > 0)
-  t.equal(buf.constructor.name, "Uint8Array")
+tape("detects a mp3 file", t => {
+  t.equal(mime(readFileSync("./celesta.mp3")), "audio/mpeg", "mp3")
+  t.end()
+})
+
+tape("mime fallback is 'application/octet-stream'", t => {
+  t.equal(mime(new Uint8Array(419)), "application/octet-stream", "bin")
+  t.end()
+})
+
+tape("metadata de/serialization", t => {
+  const input = { fraud: "money" }
+
+  // NOTE: does not validate just convert a pojo to a buf
+  const buf = metadata.serialize(input)
+
+  t.true(buf.byteLength > 0, "lengthy metadata buf")
+  t.equal(buf.constructor.name, "Uint8Array", "bytes")
+
+  const output = metadata.deserialize(buf)
+
+  t.same(input, output, "wire roundtrip")
 
   t.end()
 })
@@ -157,9 +180,9 @@ tape("ipfs add & cat", async t => {
 
   const cid = await ipfs.add(buf)
 
-  t.ok(cid)
+  t.ok(cid, "cid")
 
   const back = await ipfs.cat(cid)
 
-  t.equal(new TextDecoder().decode(back), ufo)
+  t.equal(new TextDecoder().decode(back), ufo, "ipfs roundtrip")
 })
