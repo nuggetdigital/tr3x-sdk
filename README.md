@@ -22,7 +22,7 @@ export const metadata = {
   deserialize(buf: Uint8Array): Object
   /// Validates exclusive license parameters and assembles a metadata doc.
   exclusive(params: {
-    artist: string,
+    artists: string[],
     title: string,
     price: bigint,
     blake3256: string,
@@ -32,7 +32,7 @@ export const metadata = {
     evmChainId: number,
     payee: string
   }): {
-    artist: string,
+    artists: string[],
     title: string,
     price: string,
     blake3256: string,
@@ -45,7 +45,7 @@ export const metadata = {
   },
   /// Validates lease license parameters and assembles a metadata doc.
   lease(params: {
-    artist: string,
+    artists: string[],
     title: string,
     price: bigint,
     blake3256: string,
@@ -58,7 +58,7 @@ export const metadata = {
     cap: bigint,
     paybackRateEURTR3X: number
   }): {
-    artist: string,
+    artists: string[],
     title: string,
     price: bigint,
     blake3256: string,
@@ -77,7 +77,7 @@ export const metadata = {
 export const licenseText = {
   /// Assembles an exclusive license text.
   exclusive(params: {
-    artist: string,
+    artists: string[],
     title: string,
     price: bigint,
     blake3256: string,
@@ -87,7 +87,7 @@ export const licenseText = {
   }, validate: boolean = true): string,
   /// Assembles a lease license text.
   lease(params: {
-    artist: string,
+    artists: string[],
     title: string,
     price: bigint,
     blake3256: string,
@@ -118,13 +118,19 @@ export function initIpfs(albBaseURL: string, distBaseURL: string): {
  */
 export function mime(buf: Uint8Array): string
 
-export const SUPPORTED_CHAINS = new Set([ 1, 5, 1285 ])
+export const SUPPORTED_CHAINS = new Set([1, 5, 1284, 1285])
 
-export const evmChainIdToName = Object.freeze({
+export const EVM_CHAIN_NAMES = Object.freeze({
   1: "Mainnet",
   5: "Goerli",
+  1284: "Moonbeam",
   1285: "Moonriver"
 })
 
-
+export const VALID_MIME_TYPES = new Set([
+  "audio/x-wav",
+  "audio/mpeg",
+  "audio/ogg",
+  "application/octet-stream"
+])
 ```

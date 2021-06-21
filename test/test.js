@@ -6,10 +6,11 @@ import {
   blake3,
   blake3hash256hex,
   initIpfs,
-  evmChainIdToName
+  EVM_CHAIN_NAMES
 } from "../index.js"
 import fetch from "node-fetch"
 import { createRequire } from "module"
+import { commaList } from "../util.js"
 
 const require = createRequire(import.meta.url)
 
@@ -17,7 +18,7 @@ globalThis.fetch = fetch
 console.log(process.cwd())
 
 tape("assembles valid params to lease metadata", t => {
-  const artist = "tape-artist"
+  const artists = ["tape-artist1", "tape-artist2", "tape-artist3"]
   const title = "tape-title"
   const price = 1000000000n
   const blake3256 = "deadbeef".repeat(8)
@@ -31,7 +32,7 @@ tape("assembles valid params to lease metadata", t => {
   const paybackRateEURTR3X = 1.0
 
   const expected = {
-    artist,
+    artists,
     title,
     price: price.toString() + "STYC",
     payee,
@@ -46,18 +47,33 @@ tape("assembles valid params to lease metadata", t => {
     license: `
 tr3x public performance lease license
 
-Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${evmChainIdToName[evmChainId]} chain address ${payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public, for a lease term of ${term} finalized blocks on the ${evmChainIdToName[evmChainId]} chain, starting with the block number that the purchase transaction acquiring this license got finalized in.
+Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${
+      EVM_CHAIN_NAMES[evmChainId]
+    } chain address ${payee}, to any person purchasing a token of this digital license asset to perform the associated track named "${title}", © ${copyrightYear} ${commaList(
+      artists,
+      "and"
+    )}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public, for a lease term of ${term} finalized blocks on the ${
+      EVM_CHAIN_NAMES[evmChainId]
+    } chain, starting with the block number that the purchase transaction acquiring this license got finalized in.
 
 Maximum profits off of public performances of the lessee must not excceed ${cap}€, otherwise the lessee must monthly payback 50% of the excess profits to above payee via the marketplace in TR3X at the EUR/TR3X payback rate of ${paybackRateEURTR3X}.
 
-The artist name "${artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artist} as the creator of "${title}".
+The artist name${artists.length > 1 ? "s" : ""} "${commaList(
+      artists,
+      "and"
+    )}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${commaList(
+      artists,
+      "and"
+    )} as the creator${artists.length > 1 ? "s" : ""} of "${title}".
 
-Claims of this license must be prooved using tr3x purchase transactions on the ${evmChainIdToName[evmChainId]} chain.
+Claims of this license must be prooved using tr3x purchase transactions on the ${
+      EVM_CHAIN_NAMES[evmChainId]
+    } chain.
       `.trim()
   }
 
   const artifact = metadata.lease({
-    artist,
+    artists,
     title,
     price,
     payee,
@@ -77,7 +93,7 @@ Claims of this license must be prooved using tr3x purchase transactions on the $
 })
 
 tape("assembles valid params to exclusive metadata", t => {
-  const artist = "tape-artist"
+  const artists = ["tape-artist1", "tape-artist2", "tape-artist3"]
   const title = "tape-title"
   const price = 1000000000n
   const blake3256 = "0x" + "deadbeef".repeat(8)
@@ -88,7 +104,7 @@ tape("assembles valid params to exclusive metadata", t => {
   const payee = "0x" + "0".repeat(40)
 
   const expected = {
-    artist,
+    artists,
     title,
     price: price.toString() + "STYC",
     payee,
@@ -100,16 +116,29 @@ tape("assembles valid params to exclusive metadata", t => {
     license: `
 tr3x public performance exclusive license
 
-Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${evmChainIdToName[evmChainId]} chain address ${payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${title}", © ${copyrightYear} ${artist}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public.
+Permission is hereby granted, at a charge of ${price}STYC (TR3X), payable to ${
+      EVM_CHAIN_NAMES[evmChainId]
+    } chain address ${payee}, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${title}", © ${copyrightYear} ${commaList(
+      artists,
+      "and"
+    )}, identified by its BLAKE3 256-bit hash digest 0x${blake3256}, in public.
 
-The artist name "${artist}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artist} as the creator of "${title}".
+The artist name${artists.length > 1 ? "s" : ""} "${commaList(
+      artists,
+      "and"
+    )}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${commaList(
+      artists,
+      "and"
+    )} as the creator${artists.length > 1 ? "s" : ""} of "${title}".
 
-Claims of this particular license must be verified against their respective purchases on the ${evmChainIdToName[evmChainId]} chain.
+Claims of this particular license must be verified against their respective purchases on the ${
+      EVM_CHAIN_NAMES[evmChainId]
+    } chain.
     `.trim()
   }
 
   const artifact = metadata.exclusive({
-    artist,
+    artists,
     title,
     price,
     payee,

@@ -1,15 +1,22 @@
 import {
   SUPPORTED_CHAINS,
-  evmChainIdToName,
+  EVM_CHAIN_NAMES,
   VALID_MIME_TYPES
 } from "./constants.js"
+import { commaList } from "./util.js"
 
 function validateExclusiveParams(params, onlyForLicenseText) {
   if (!SUPPORTED_CHAINS.has(params.evmChainId)) {
     throw TypeError(`chain must be one of ${[...SUPPORTED_CHAINS].join(", ")}`)
   }
-  if (typeof params.artist !== "string" || !params.artist.length) {
-    throw TypeError("artist must be a string")
+  // if (typeof params.artist !== "string" || !params.artist.length) {
+  //   throw TypeError("artist must be a string")
+  // }
+  if (
+    params.artists?.constructor?.name !== "Array" ||
+    !params.artists?.length
+  ) {
+    throw TypeError("artists must be a nonempty string array")
   }
   if (typeof params.title !== "string" || !params.title.length) {
     throw TypeError("title must be a string")
@@ -40,8 +47,18 @@ function validateLeaseParams(params, onlyForLicenseText) {
   if (!SUPPORTED_CHAINS.has(params.evmChainId)) {
     throw TypeError(`chain must be one of ${[...SUPPORTED_CHAINS].join(", ")}`)
   }
-  if (typeof params.artist !== "string" || !params.artist.length) {
-    throw TypeError("artist must be a string")
+  // if (typeof params.artist !== "string" || !params.artist.length) {
+  //   throw TypeError("artist must be a string")
+  // }
+  console.log(
+    "params.artists?.constructor?.name",
+    params.artists?.constructor?.name
+  )
+  if (
+    params.artists?.constructor?.name !== "Array" ||
+    !params.artists?.length
+  ) {
+    throw TypeError("artists must be a nonempty string array")
   }
   if (typeof params.title !== "string" || !params.title.length) {
     throw TypeError("title must be a string")
@@ -85,23 +102,26 @@ export const licenseText = {
     if (validate) {
       validateLeaseParams(params, true)
     }
+
+    const artistsList = commaList(params.artists, "and")
+
     return `
 tr3x public performance lease license
 
 Permission is hereby granted, at a charge of ${
       params.price
     }STYC (TR3X), payable to ${
-      evmChainIdToName[params.evmChainId]
+      EVM_CHAIN_NAMES[params.evmChainId]
     } chain address ${
       params.payee
     }, to any person purchasing a token of this digital license asset to perform the associated track named "${
       params.title
-    }", © ${params.copyrightYear} ${
-      params.artist
-    }, identified by its BLAKE3 256-bit hash digest 0x${
+    }", © ${
+      params.copyrightYear
+    } ${artistsList}, identified by its BLAKE3 256-bit hash digest 0x${
       params.blake3256
     }, in public, for a lease term of ${params.term} finalized blocks on the ${
-      evmChainIdToName[params.evmChainId]
+      EVM_CHAIN_NAMES[params.evmChainId]
     } chain, starting with the block number that the purchase transaction acquiring this license got finalized in.
 
 Maximum profits off of public performances of the lessee must not excceed ${
@@ -110,14 +130,14 @@ Maximum profits off of public performances of the lessee must not excceed ${
       params.paybackRateEURTR3X
     }.
 
-The artist name "${
-      params.artist
-    }" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${
-      params.artist
-    } as the creator of "${params.title}".
+The artist name${
+      params.artists.length > 1 ? "s" : ""
+    } "${artistsList}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artistsList} as the creator${
+      params.artists.length > 1 ? "s" : ""
+    } of "${params.title}".
 
 Claims of this license must be prooved using tr3x purchase transactions on the ${
-      evmChainIdToName[params.evmChainId]
+      EVM_CHAIN_NAMES[params.evmChainId]
     } chain.
 `.trim()
   },
@@ -125,31 +145,34 @@ Claims of this license must be prooved using tr3x purchase transactions on the $
     if (validate) {
       validateExclusiveParams(params, true)
     }
+
+    const artistsList = commaList(params.artists, "and")
+
     return `
 tr3x public performance exclusive license
 
 Permission is hereby granted, at a charge of ${
       params.price
     }STYC (TR3X), payable to ${
-      evmChainIdToName[params.evmChainId]
+      EVM_CHAIN_NAMES[params.evmChainId]
     } chain address ${
       params.payee
     }, to the first person purchasing a token of this digital license asset to exclusively perform the associated track named "${
       params.title
-    }", © ${params.copyrightYear} ${
-      params.artist
-    }, identified by its BLAKE3 256-bit hash digest 0x${
+    }", © ${
+      params.copyrightYear
+    } ${artistsList}, identified by its BLAKE3 256-bit hash digest 0x${
       params.blake3256
     }, in public.
 
-The artist name "${
-      params.artist
-    }" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${
-      params.artist
-    } as the creator of "${params.title}".
+The artist name${
+      params.artists.length > 1 ? "s" : ""
+    } "${artistsList}" must be visibly included in all digital and physical copies and noticeably mentioned at any public performances explicitely accrediting ${artistsList} as the creator${
+      params.artists.length > 1 ? "s" : ""
+    } of "${params.title}".
 
 Claims of this particular license must be verified against their respective purchases on the ${
-      evmChainIdToName[params.evmChainId]
+      EVM_CHAIN_NAMES[params.evmChainId]
     } chain.
 `.trim()
   }
@@ -169,7 +192,7 @@ export default {
     validateExclusiveParams(params)
 
     const {
-      artist,
+      artists,
       title,
       price,
       blake3256,
@@ -181,7 +204,7 @@ export default {
     } = params
 
     return {
-      artist,
+      artists,
       title,
       // IPFS content identifier of the track
       cid,
@@ -202,7 +225,7 @@ export default {
     validateLeaseParams(params)
 
     const {
-      artist,
+      artists,
       title,
       price,
       blake3256,
@@ -217,7 +240,7 @@ export default {
     } = params
 
     return {
-      artist,
+      artists,
       title,
       // IPFS content identifier of the track
       cid,
