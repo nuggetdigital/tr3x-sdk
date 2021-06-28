@@ -1,136 +1,150 @@
-# tr3x-util
+# tr3x-sdk
 
-[![ci](https://github.com/nuggetdigital/tr3x-util/workflows/ci/badge.svg)](https://github.com/nuggetdigital/tr3x-util/actions/workflows/ci.yml)
+[![ci](https://github.com/nuggetdigital/tr3x-sdk/workflows/ci/badge.svg)](https://github.com/nuggetdigital/tr3x-sdk/actions/workflows/ci.yml)
 
 tr3x core utils
 
-## qs?
-
-+ include contract address in metadata ? most probly yes
-
 ## API
 
+### `index.ts`
+
+```ts
+export * from "./defs";
+export * from "./metadata";
+export * from "./license";
+export * from "./mime";
+export * from "./ipfs";
+export declare const blake3hash256hex: Hash256Hex;
+export declare function blake3(): Promise<Hash256Hex>;
+```
+
+### `defs.ts`
+
 ``` ts
-export async function blake3(): (msg: Uint8Array) => string;
-
-export function blake3hash256hex(msg: Uint8Array) => string;
-
-export const metadata = {
-  /// Serializes any given pojo to a buf.
-  serialize(metadata: Object): Uint8Array
-  /// Deserializes given buf to a pojo.
-  deserialize(buf: Uint8Array): Object
-  /// Validates exclusive license parameters and assembles a metadata doc.
-  exclusive(params: {
-    artists: string[],
-    title: string,
-    price: bigint,
-    blake3256: string,
-    copyrightYear: number,
-    mime: string,
-    cid: string,
-    evmChainId: number,
-    payee: string
-  }): {
-    artists: string[],
-    title: string,
-    price: string,
-    blake3256: string,
-    copyrightYear: number,
-    mime: string,
-    cid: string,
-    evmChainId: number,
-    payee: string,
-    license: string
-  },
-  /// Validates lease license parameters and assembles a metadata doc.
-  lease(params: {
-    artists: string[],
-    title: string,
-    price: bigint,
-    blake3256: string,
-    copyrightYear: number,
-    mime: string,
-    cid: string,
-    evmChainId: number,
-    payee: string,
-    term: bigint,
-    cap: bigint,
-    paybackRateEURTR3X: number
-  }): {
-    artists: string[],
-    title: string,
-    price: bigint,
-    blake3256: string,
-    copyrightYear: number,
-    mime: string,
-    cid: string,
-    evmChainId: number,
-    payee: string,
-    license: string,
-    term: string,
-    cap: string,
-    paybackRateEURTR3X: number
-  }
+export declare type Hash256Hex = (msg: Uint8Array) => string;
+export declare const SUPPORTED_CHAINS: Set<number>;
+export declare const EVM_CHAIN_NAMES: { [key: number]: string; };
+export declare const VALID_MIME_TYPES: Set<string>;
+export interface ExclusiveLicenseParams {
+    artists: string[];
+    title: string;
+    price: bigint;
+    blake3256: string;
+    copyrightYear: number;
+    mime: string;
+    cid: string;
+    evmChainId: number;
+    payee: string;
 }
-
-export const licenseText = {
-  /// Assembles an exclusive license text.
-  exclusive(params: {
-    artists: string[],
-    title: string,
-    price: bigint,
-    blake3256: string,
-    copyrightYear: number,
-    evmChainId: number,
-    payee: string
-  }, validate: boolean = true): string,
-  /// Assembles a lease license text.
-  lease(params: {
-    artists: string[],
-    title: string,
-    price: bigint,
-    blake3256: string,
-    copyrightYear: number,
-    evmChainId: number,
-    payee: string,
-    term: bigint,
-    cap: bigint,
-    paybackRateEURTR3X: number
-  }, validate: boolean = true): string
+export interface ExclusiveLicenseMetadata {
+    artists: string[];
+    title: string;
+    price: string;
+    blake3256: string;
+    copyrightYear: number;
+    mime: string;
+    cid: string;
+    evmChainId: number;
+    payee: string;
+    license: string;
 }
-
-/**
- * Creates a client connected to given IPFS node(s).
- * albBaseURL should follow format: http(s)://$albDomain
- * distBaseURL should follow format: https://$distDomain
- */
-export function initIpfs(albBaseURL: string, distBaseURL: string): {
-  /// Add some data to IPFS.
-  add(buf: Uint8Array): Promise<string>;
-  /// Gets some data from IPFS.
-  cat(cid: string): Promise<Uint8Array>;
+export interface LeaseLicenseParams {
+    artists: string[];
+    title: string;
+    price: bigint;
+    blake3256: string;
+    copyrightYear: number;
+    mime: string;
+    cid: string;
+    evmChainId: number;
+    payee: string;
+    term: bigint;
+    cap: bigint;
+    paybackRateEURTR3X: number;
 }
+export interface LeaseLicenseMetadata {
+    artists: string[];
+    title: string;
+    price: string;
+    blake3256: string;
+    copyrightYear: number;
+    mime: string;
+    cid: string;
+    evmChainId: number;
+    payee: string;
+    license: string;
+    term: string;
+    cap: string;
+    paybackRateEURTR3X: number;
+}
+export interface LeaseLicenseTextParams {
+    artists: string[];
+    title: string;
+    price: bigint;
+    blake3256: string;
+    copyrightYear: number;
+    evmChainId: number;
+    payee: string;
+    term: bigint;
+    cap: bigint;
+    paybackRateEURTR3X: number;
+}
+export interface ExclusiveLicenseTextParams {
+    artists: string[];
+    title: string;
+    price: bigint;
+    blake3256: string;
+    copyrightYear: number;
+    evmChainId: number;
+    payee: string;
+}
+export interface IpfsPinrClient {
+    add(buf: Uint8Array): Promise<string>;
+    cat(cid: string): Promise<Uint8Array>;
+}
+```
 
-/***
- * Detects mp3 and wav file formats by their magic numbers.
- * Fallsback to "application/octet-stream"
- */
-export function mime(buf: Uint8Array): string
+### `ipfs.ts`
 
-export const SUPPORTED_CHAINS = new Set([1, 5, 1284, 1285])
+``` ts
+export declare function createIpfsPinrClient(albBaseURL: string, distBaseURL: string): IpfsPinrClient;
+```
 
-export const EVM_CHAIN_NAMES = Object.freeze({
-  1: "Mainnet",
-  5: "Goerli",
-  1284: "Moonbeam",
-  1285: "Moonriver"
-})
+### `license.ts`
 
-export const VALID_MIME_TYPES = new Set([
-  "audio/x-wav",
-  "audio/mpeg",
-  "audio/ogg",
-  "application/octet-stream"
-])
+``` ts
+export declare function leaseLicenseText(params: LeaseLicenseTextParams, validate?: boolean): string;
+export declare function exclusiveLicenseText(params: ExclusiveLicenseTextParams, validate?: boolean): string;
+```
+
+### `metadata.ts`
+
+``` ts
+export declare function serializeMetadata(metadata: LeaseLicenseMetadata | ExclusiveLicenseMetadata): Uint8Array;
+export declare function deserializeMetadata(buf: Uint8Array): LeaseLicenseMetadata | ExclusiveLicenseMetadata;
+export declare function exclusiveLicenseMetadata(params: ExclusiveLicenseParams): ExclusiveLicenseMetadata;
+export declare function leaseLicenseMetadata(params: LeaseLicenseParams): LeaseLicenseMetadata;
+
+```
+
+### `mime.ts`
+
+``` ts
+export declare function isMp3(buf: Uint8Array): boolean;
+export declare function isWav(buf: Uint8Array): boolean;
+export declare function isOgg(buf: Uint8Array): boolean;
+export declare function mime(buf: Uint8Array): string;
+```
+
+### `validate.ts`
+
+``` ts 
+export declare function validateExclusiveParams(
+  params: { [key: string]: any; },
+  onlyForLicenseText?: boolean
+): void;
+export declare function validateLeaseParams(
+  params: { [key: string]: any; },
+  onlyForLicenseText?: boolean
+): void;
 ```

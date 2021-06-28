@@ -1,16 +1,16 @@
 {
-  "name": "tr3x-util",
-  "type": "module",
+  "name": "tr3x-sdk",
   "version": "0.0.0",
   "description": "tr3x core util funcs",
-  "main": "index.js",
+  "main": "target/index.js",
+  "type": "module",
   "scripts": {
-    "test": "node ./test/test.js",
-    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.js' './*/*.js'"
+    "test": "rm -rf ./target/* && tsc --project ./tsconfig.json --outDir ./target && cp ./test/celesta.* ./target/test/ && node --experimental-modules --es-module-specifier-resolution=node ./target/test/test.js",
+    "fmt": "prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts' './*/*.ts'"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nuggetdigital/tr3x-util.git"
+    "url": "git+https://github.com/nuggetdigital/tr3x-sdk.git"
   },
   "keywords": [
     "tr3x",
@@ -21,14 +21,18 @@
   "author": "Noah Anabiik Schwarz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nuggetdigital/tr3x-util/issues"
+    "url": "https://github.com/nuggetdigital/tr3x-sdk/issues"
   },
-  "homepage": "https://github.com/nuggetdigital/tr3x-util#readme",
+  "homepage": "https://github.com/nuggetdigital/tr3x-sdk#readme",
   "devDependencies": {
+    "@types/node": "15.12.5",
     "node-fetch": "2.6.1",
-    "tape": "5.2.1"
+    "prettier": "2.3.2",
+    "tape": "5.2.1",
+    "ts-node": "10.0.0",
+    "typescript": "4.3.4"
   },
   "dependencies": {
-    "blake3-hash-wasm": "github:nuggetdigital/blake3-hash-wasm#v0.3.2"
+    "blake3-hash-wasm": "github:nuggetdigital/blake3-hash-wasm#v0.3.3"
   }
 }

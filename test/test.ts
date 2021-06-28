@@ -1,21 +1,22 @@
 import { readFileSync } from "fs"
 import tape from "tape"
 import {
-  metadata,
+  leaseLicenseMetadata,
+  exclusiveLicenseMetadata,
   mime,
   blake3,
   blake3hash256hex,
-  initIpfs,
-  EVM_CHAIN_NAMES
-} from "../index.js"
-import fetch from "node-fetch"
+  createIpfsPinrClient,
+  EVM_CHAIN_NAMES,
+  serializeMetadata,
+  deserializeMetadata
+} from "../index"
+import { commaList } from "../util"
 import { createRequire } from "module"
-import { commaList } from "../util.js"
+import fetch from "node-fetch"
 
 const require = createRequire(import.meta.url)
-
 globalThis.fetch = fetch
-console.log(process.cwd())
 
 tape("assembles valid params to lease metadata", t => {
   const artists = ["tape-artist1", "tape-artist2", "tape-artist3"]
@@ -72,7 +73,7 @@ Claims of this license must be prooved using tr3x purchase transactions on the $
       `.trim()
   }
 
-  const artifact = metadata.lease({
+  const artifact = leaseLicenseMetadata({
     artists,
     title,
     price,
@@ -137,7 +138,7 @@ Claims of this particular license must be verified against their respective purc
     `.trim()
   }
 
-  const artifact = metadata.exclusive({
+  const artifact = exclusiveLicenseMetadata({
     artists,
     title,
     price,
@@ -157,7 +158,7 @@ Claims of this particular license must be verified against their respective purc
 tape("blake3256 some data possibly in the browser using wasm", async t => {
   await blake3()
 
-  t.same(
+  t.equal(
     blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))),
     "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420",
     "blake3hash256hex"
@@ -195,12 +196,12 @@ tape("metadata de/serialization", t => {
   const input = { fraud: "money" }
 
   // NOTE: does not validate just convert a pojo to a buf
-  const buf = metadata.serialize(input)
+  const buf = serializeMetadata(input as any)
 
   t.true(buf.byteLength > 0, "lengthy metadata buf")
   t.equal(buf.constructor.name, "Uint8Array", "bytes")
 
-  const output = metadata.deserialize(buf)
+  const output = deserializeMetadata(buf)
 
   t.same(input, output, "wire roundtrip")
 
@@ -209,7 +210,7 @@ tape("metadata de/serialization", t => {
 
 // DIRTY SIDE EFFECTS
 tape("ipfs add & cat", async t => {
-  const ipfs = initIpfs(
+  const ipfs = createIpfsPinrClient(
     `http://${process.env.ALB_DOMAIN_NAME}`,
     `https://${process.env.DIST_DOMAIN_NAME}`
   )
