@@ -2,11 +2,12 @@
   "name": "tr3x-sdk",
   "version": "0.0.0",
   "description": "tr3x core util funcs",
-  "main": "target/index.js",
+  "main": "./bundle.js",
   "type": "module",
   "scripts": {
     "test": "rm -rf ./target/* && tsc --project ./tsconfig.json --outDir ./target && cp ./test/celesta.* ./target/test/ && node --experimental-modules --es-module-specifier-resolution=node ./target/test/test.js",
-    "fmt": "prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts' './*/*.ts'"
+    "fmt": "prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts' './*/*.ts'",
+    "bundle": "tmp_dir=$(mktemp -d) && npx @vercel/ncc@0.28.6 build --out=$tmp_dir ./index.ts && cp $tmp_dir/index.js ./bundle.js"
   },
   "repository": {
     "type": "git",
