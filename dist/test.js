@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import tape from "tape";
-import { leaseLicenseMetadata, exclusiveLicenseMetadata, mime, blake3, blake3hash256hex, createIpfsPinrClient, EVM_CHAIN_NAMES, serializeMetadata, deserializeMetadata } from "./index.js";
-import { commaList } from "./util.js";
+import { leaseLicenseMetadata, exclusiveLicenseMetadata, mime, blake3, blake3hash256hex, createIpfsPinrClient, EVM_CHAIN_NAMES, serializeMetadata, deserializeMetadata } from "./index";
+import { commaList } from "./util";
 import { createRequire } from "module";
 import fetch from "node-fetch";
 const require = createRequire(import.meta.url);

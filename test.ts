@@ -10,8 +10,8 @@ import {
   EVM_CHAIN_NAMES,
   serializeMetadata,
   deserializeMetadata
-} from "./index.js"
-import { commaList } from "./util.js"
+} from "./index"
+import { commaList } from "./util"
 import { createRequire } from "module"
 import fetch from "node-fetch"
 
