@@ -1,12 +1,16 @@
 {
   "name": "tr3x-sdk",
   "version": "0.0.0",
-  "description": "tr3x core util funcs",
-  "main": "./bundle.js",
+  "description": "tr3x core utils",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/*",
+    "dist/**/*"
+  ],
   "scripts": {
-    "test": "npx @vercel/ncc@0.28.6 build --target es2020 --out=./test/tmp ./test/test.ts && node ./test/tmp/index.js",
+    "build": "tsc",
     "fmt": "prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts' './*/*.ts'",
-    "bundle": "tmp_dir=$(mktemp -d) && npx @vercel/ncc@0.28.6 build --target es2020 --out=$tmp_dir ./index.ts && cp $tmp_dir/index.js ./bundle.js"
+    "test": "ncc build --target es2020 --out=./test/tmp ./test/test.ts && node ./test/tmp/index.js"
   },
   "repository": {
     "type": "git",
@@ -26,10 +30,10 @@
   "homepage": "https://github.com/nuggetdigital/tr3x-sdk#readme",
   "devDependencies": {
     "@types/node": "15.12.5",
+    "@vercel/ncc": "0.28.6",
     "node-fetch": "2.6.1",
     "prettier": "2.3.2",
     "tape": "5.2.1",
-    "ts-node": "10.0.0",
     "typescript": "4.3.4"
   },
   "dependencies": {
