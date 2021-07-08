@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import tape from "tape";
-import { leaseLicenseMetadata, exclusiveLicenseMetadata, mime, blake3, blake3hash256hex, createIpfsPinrClient, EVM_CHAIN_NAMES, serializeMetadata, deserializeMetadata } from "../index";
-import { commaList } from "../util";
+import { leaseLicenseMetadata, exclusiveLicenseMetadata, mime, blake3, blake3hash256hex, createIpfsPinrClient, EVM_CHAIN_NAMES, serializeMetadata, deserializeMetadata } from "./index.js";
+import { commaList } from "./util.js";
 import { createRequire } from "module";
 import fetch from "node-fetch";
 const require = createRequire(import.meta.url);
@@ -110,17 +110,17 @@ tape("blake3256 some data possibly in the browser using wasm", async (t) => {
     t.equal(blake3hash256hex(Uint8Array.from(Buffer.from("fraud world"))), "02cb5a8d8d1c78b28217b8f8dc0230353c45afb92395af643239e38e1d9c1420", "blake3hash256hex");
 });
 tape("detects a wav file", t => {
-    const buf = readFileSync(require.resolve("./celesta.wav"));
+    const buf = readFileSync(require.resolve("./fixtures/celesta.wav"));
     t.equal(mime(buf), "audio/x-wav", "wav");
     t.end();
 });
 tape("detects an ogg file", t => {
-    const buf = readFileSync(require.resolve("./celesta.ogg"));
+    const buf = readFileSync(require.resolve("./fixtures/celesta.ogg"));
     t.equal(mime(buf), "audio/ogg", "ogg");
     t.end();
 });
 tape("detects a mp3 file", t => {
-    const buf = readFileSync(require.resolve("./celesta.mp3"));
+    const buf = readFileSync(require.resolve("./fixtures/celesta.mp3"));
     t.equal(mime(buf), "audio/mpeg", "mp3");
     t.end();
 });

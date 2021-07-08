@@ -2,6 +2,7 @@
   "name": "tr3x-sdk",
   "version": "0.0.0",
   "description": "tr3x core utils",
+  "type":"module",
   "main": "./dist/index.js",
   "files": [
     "dist/*",
@@ -10,7 +11,7 @@
   "scripts": {
     "build": "tsc",
     "fmt": "prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './*.ts' './*/*.ts'",
-    "test": "ncc build --target es2020 --out=./test/tmp ./test/test.ts && node ./test/tmp/index.js"
+    "test": "npm run build && node --experimental-specifier-resolution=node ./dist/test.js"
   },
   "repository": {
     "type": "git",
